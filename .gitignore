@@ -1,0 +1,19 @@
+# General
+.vscode
+.venv
+venv
+tmp
+dist
+
+# Configuration files
+etc/config.ini
+
+# Lib cache
+__pycache__
+omdepplotlib/__pycache__
+omdepplotlib/chart_building/__pycache__
+omdepplotlib/charts/__pycache__
+omdepplotlib/preprocessing/__pycache__
+
+# Other cache
+tools/__pycache__
