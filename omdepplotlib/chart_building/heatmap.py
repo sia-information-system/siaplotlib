@@ -4,17 +4,19 @@ import io
 import sys
 import pathlib
 from omdepplotlib.charts import heatmap
-from omdepplotlib.raw_image import ChartImage
+from omdepplotlib.charts.raw_image import ChartImage
+from omdepplotlib.preprocessing import subsetting
+import xarray as xr
 
 class HeatMapBuilder:
   # Public methods.
 
   def __init__(
     self,
-    dataset,
-    verbose = False):
+    dataset: xr.DataArray,
+    verbose: bool = False):
       self.dataset = dataset
-      self.__chart = None
+      self._chart = None
       self.verbose = verbose
 
 
@@ -27,17 +29,24 @@ class HeatMapBuilder:
     dim_constraints: dict = {},
     label: str = None,
     color_palett: str = None):
-      subset, vmin, vmax, lon_data, lat_data, lon_interval, lat_interval = self.__subset(
-        var, dim_constraints, lon_dim_name, lat_dim_name)
+      subset, vmin, vmax = subsetting.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=dim_constraints,
+        var=var)
       
-      self.__chart = heatmap.HeatMap(
+      lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+        dataset=subset,
+        lon_dim_name=lon_dim_name,
+        lat_dim_name=lat_dim_name)
+      
+      self._chart = heatmap.HeatMap(
         dataset=subset,
         label=label,
         title=title,
         lon_interval=lon_interval,
         lat_interval=lat_interval,
-        lat_data=lat_data.data,
-        lon_data=lon_data.data,
+        lat_data=lat_data,
+        lon_data=lon_data,
         vmax=vmax,
         vmin=vmin,
         color_palett=color_palett,
@@ -46,7 +55,6 @@ class HeatMapBuilder:
       return self
 
 
-  # TODO: use dime_constraints and thinks in a better way of iterate all avaiable dates in dataset
   def build_gif(
     self,
     var: str,
@@ -59,8 +67,15 @@ class HeatMapBuilder:
     color_palett: str = None,
     duration: int = 0.5,
     duration_unit: str = 'SECONDS_PER_FRAME'):
-      subset, vmin, vmax, lon_data, lat_data, lon_interval, lat_interval = self.__subset(
-        var, dim_constraints, lon_dim_name, lat_dim_name)
+      subset, vmin, vmax = subsetting.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=dim_constraints,
+        var=var)
+      
+      lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+        dataset=subset,
+        lon_dim_name=lon_dim_name,
+        lat_dim_name=lat_dim_name)
 
       if self.verbose:
         print('Creating images (frames) to create gif.', file=sys.stderr)
@@ -78,8 +93,8 @@ class HeatMapBuilder:
           title=f'{title} {date}',
           lon_interval=lon_interval,
           lat_interval=lat_interval,
-          lat_data=lat_data.data,
-          lon_data=lon_data.data,
+          lat_data=lat_data,
+          lon_data=lon_data,
           vmax=vmax,
           vmin=vmin,
           color_palett=color_palett,
@@ -97,7 +112,7 @@ class HeatMapBuilder:
       for chart in chart_list:
         chart.close()
 
-      self.__chart = ChartImage(
+      self._chart = ChartImage(
         img_source=img_buff,
         var=var, 
         title=title, 
@@ -109,37 +124,16 @@ class HeatMapBuilder:
 
   
   def save(self, filepath: str | pathlib.Path):
-    if type(self.__chart) is heatmap.HeatMap:
-      self.__chart.save(filepath)
+    if type(self._chart) is heatmap.HeatMap:
+      self._chart.save(filepath)
     else:
       with open(filepath, "wb") as f:
-        f.write(self.__chart.get_img_buff().getbuffer())
+        f.write(self._chart.get_img_buff().getbuffer())
         if self.verbose:
           print('Gift actually saved.', file=sys.stderr)
 
 
   # Private Methods.
-
-  def __subset(self, var: str, dim_constraints: str, lon_dim_name: str, lat_dim_name: str):
-    if self.verbose:
-      print('Subsetting.', file=sys.stderr)
-    subset = self.dataset[var].sel(dim_constraints, method = 'nearest').squeeze()
-    vmin = np.round( float(subset.min().data), 3 )
-    vmax = np.round( float(subset.max().data), 3 )
-    lon_data = subset[lon_dim_name]
-    lat_data = subset[lat_dim_name]
-    lon_interval = [
-      np.round( float(lon_data.min().data), 3 ),
-      np.round( float(lon_data.max().data), 3 )
-    ]
-    lat_interval = [
-      np.round( float(lat_data.min().data), 3 ),
-      np.round( float(lat_data.max().data), 3 )
-    ]
-    if self.verbose:
-      print('Subsetting done.', file=sys.stderr)
-    return subset, vmin, vmax, lon_data, lat_data, lon_interval, lat_interval
-
   
   def __make_gif(self, charts: list, duration: float = 0.5, duration_unit: str = 'SECONDS_PER_FRAME'):
     if self.verbose:
@@ -147,9 +141,9 @@ class HeatMapBuilder:
     
     frame_duration = None
     if duration_unit == 'SECONDS_PER_FRAME':
-      frame_duration = int(duration * 1000)
+      frame_duration = np.round(duration * 1000)
     elif duration_unit == 'FRAMES_PER_SECOND':
-      frame_duration = int(1000 / duration)
+      frame_duration = np.round(1000 / duration)
     else:
       raise RuntimeError(f'Unit "{duration_unit}" is not supported.')
     

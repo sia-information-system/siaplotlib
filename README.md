@@ -15,8 +15,9 @@ create a virtual environment named `venv` in the root directory
 and install the required dependencies in there.
 
 - xarray
-- Matplotlib
-- GeoPandas
+- matplotlib
+- cartopy
+- Pillow
 
 ## Tests
 

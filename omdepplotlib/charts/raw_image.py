@@ -11,7 +11,8 @@ class RawImage:
         self.__img_buff = img_source
         print('Setting image buffer', file=sys.stderr)
       else:
-        print('Not buffer set', file=sys.stderr)
+        # Read from disk
+        print('Buffer not set', file=sys.stderr)
   
 
   def get_img_buff(self):

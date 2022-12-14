@@ -3,7 +3,6 @@ import sys
 import unittest
 import time
 import xarray as xr
-from omdepplotlib.preprocessing import dataframe
 from omdepplotlib.chart_building import heatmap
 import tools.general_utils as general_utils
 
@@ -26,6 +25,14 @@ plot_legend_names = {
   'uo': 'Meters per second',
   'so': 'Practical Salinity Unit',
   'zos': 'Meters'
+}
+
+palette_colors = {
+    'thetao': 'OrRd',
+    'vo': 'plasma',
+    'uo': 'plasma',
+    'so': 'Greens',
+    'zos': 'viridis'
 }
 
 class TestDataVisualization(unittest.TestCase):
@@ -57,6 +64,7 @@ class TestDataVisualization(unittest.TestCase):
         dim_constraints=dim_constraints,
         lat_dim_name='latitude',
         lon_dim_name='longitude',
+        color_palett=palette_colors[variable]
       )
       print(f'-> Image built.', file=sys.stderr)
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, plot_titles[variable]))
@@ -98,7 +106,8 @@ class TestDataVisualization(unittest.TestCase):
         lat_dim_name='latitude',
         lon_dim_name='longitude',
         duration=3,
-        duration_unit='FRAMES_PER_SECOND')
+        duration_unit='FRAMES_PER_SECOND',
+        color_palett=palette_colors[variable])
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'{plot_titles[variable]}-ANIMATION.gif'))
     print(f'Gifs stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
 
