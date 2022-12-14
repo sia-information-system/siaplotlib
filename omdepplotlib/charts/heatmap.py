@@ -1,42 +1,43 @@
-import pathlib
 import sys
-import geopandas as gpd
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
+import numpy as np
 import io
 
-VISUALIZATIONS_DIR = pathlib.Path(pathlib.Path(__file__).parent.absolute(), '..', '..', '..', 'tmp', 'visualizations')
 
 class HeatMap():
   '''
     Create a heat map chart.
 
-    limit_coord_lon is a list with [west coord, east coord]
-    limit_coord_lat is a list with [south coord, north coord]
+    lon_interval is a list with [west coord, east coord]
+    lat_interval is a list with [south coord, north coord]
   '''
   def __init__(
     self,
-    gdf, 
-    var, 
-    title, 
-    limit_coord_lon=[-90, -80], 
-    limit_coord_lat=[10, 30],
-    has_legend=True,
-    name_legend='',
+    dataset, 
+    lon_interval = [],
+    lat_interval = [],
+    lon_data = None,
+    lat_data = None,
     vmin=None,
     vmax=None,
+    color_palett = 'viridis',
+    title = None, 
+    label = None,
     build_on_create=True,
-    verbose=True
+    verbose=False
     ):
-      self.__world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-      self.gdf = gdf
-      self.var = var
+      self.dataset = dataset
       self.title = title
-      self.limit_coord_lon = limit_coord_lon
-      self.limit_coord_lat = limit_coord_lat
-      self.has_legend = has_legend
-      self.name_legend = name_legend
+      self.lon_interval = lon_interval
+      self.lat_interval = lat_interval
+      self.lon_data = lon_data
+      self.lat_data = lat_data
+      self.label = label
       self.vmin = vmin
       self.vmax = vmax
+      self.color_palett = color_palett
       self.verbose = verbose
       self.__fig = None
       self.__fig_path = None
@@ -48,21 +49,31 @@ class HeatMap():
   def build(self):
     self.close()
     
-    ax = self.__world.plot()
-    self.gdf.plot(
-      ax=ax, 
-      column=self.var, 
-      legend=self.has_legend, 
-      legend_kwds={'label': self.name_legend}, 
-      cmap='OrRd',
-      vmin=self.vmin,
-      vmax=self.vmax)
-
-    ax.set_xlim(self.limit_coord_lon[0], self.limit_coord_lon[1])
-    ax.set_ylim(self.limit_coord_lat[0], self.limit_coord_lat[1])
+    # Definition of the plot features.
+    f = plt.figure()
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.coastlines()
+    ax.add_feature(cfeature.LAND, zorder=1, edgecolor='k')
+    ax.set_extent(self.lon_interval + self.lat_interval, crs=ccrs.PlateCarree())
     ax.set_title(self.title)
+    gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True)
+    gl.right_labels = False
+    gl.top_labels = False
+    gl.rotate_labels = True
 
-    self.__fig = plt.gcf()
+    im = ax.pcolor(
+      self.lon_data,
+      self.lat_data,
+      self.dataset,
+      vmin=self.vmin,
+      vmax=self.vmax,
+      cmap=self.color_palett)
+
+    cbar = f.colorbar(im, ax=ax)
+    if self.label is not None:
+      cbar.set_label(self.label)
+
+    self.__fig = f
 
     if self.verbose:
       print(f'Image created.', file=sys.stderr)
@@ -90,7 +101,8 @@ class HeatMap():
 
   def close(self):
     if self.__fig is not None:
-      print('Closing pyplot figure.', file=sys.stderr)
+      if self.verbose:
+        print('Closing pyplot figure.', file=sys.stderr)
       plt.close(self.__fig)
       self.__fig = None
   

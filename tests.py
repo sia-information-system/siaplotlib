@@ -37,20 +37,26 @@ class TestDataVisualization(unittest.TestCase):
       DATA_DIR,
       'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-10h-31m-10s-857022ms.nc')
     dataset = xr.open_dataset(dataset_path)
+    vis = heatmap.HeatMapBuilder(dataset=dataset, verbose=True)
 
-    prep = dataframe.DataframePreprocessor(dataset)
-    vis = heatmap.HeatMapBuilder(prep)
-
+    target_date = '2022-10-11'
     for variable in variables:
+      dim_constraints = {
+        'time': [target_date],
+        'depth': [0.49402499198913574]
+      }
+      if variable == 'zos':
+        dim_constraints = {
+          'time': [target_date]
+        }
       print(f'-> Heatmap static image for "{variable}" variable.', file=sys.stderr)
       vis.build_static(
         var=variable,
-        chart_title=plot_titles[variable],
-        name_legend=plot_legend_names[variable],
-        dim_constraints={
-          'time': ['2022-10-11'],
-          'depth': [0.49402499198913574]
-        }
+        title=f'{plot_titles[variable]} {target_date}',
+        label=plot_legend_names[variable],
+        dim_constraints=dim_constraints,
+        lat_dim_name='latitude',
+        lon_dim_name='longitude',
       )
       print(f'-> Image built.', file=sys.stderr)
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, plot_titles[variable]))
@@ -74,19 +80,25 @@ class TestDataVisualization(unittest.TestCase):
       DATA_DIR,
       'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
     dataset = xr.open_dataset(dataset_path)
-
-    prep = dataframe.DataframePreprocessor(dataset)
-    vis = heatmap.HeatMapBuilder(prep)
+    vis = heatmap.HeatMapBuilder(dataset=dataset, verbose=True)
 
     for variable in variables:
       print(f'-> Heatmap gif for "{variable}" variable.', file=sys.stderr)
+      dim_constraints = {
+        'depth': [0.49402499198913574]
+      }
+      if variable == 'zos':
+        dim_constraints = {}
       vis.build_gif(
         var=variable,
-        chart_title=plot_titles[variable],
-        name_legend=plot_legend_names[variable],
-        dim_constraints={
-          'depth': [0.49402499198913574]
-        })
+        title=plot_titles[variable],
+        label=plot_legend_names[variable],
+        dim_constraints=dim_constraints,
+        time_dim_name='time',
+        lat_dim_name='latitude',
+        lon_dim_name='longitude',
+        duration=3,
+        duration_unit='FRAMES_PER_SECOND')
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'{plot_titles[variable]}-ANIMATION.gif'))
     print(f'Gifs stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
 

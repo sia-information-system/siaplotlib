@@ -24,16 +24,14 @@ class ChartImage(RawImage):
     img_source,
     var, 
     title, 
-    limit_coord_lon=[-90, -80], 
-    limit_coord_lat=[10, 30],
-    has_legend=True,
-    name_legend='',
-    verbose=True):
+    lon_interval=[], 
+    lat_interval=[],
+    label=None,
+    verbose=False):
       super().__init__(img_source)
       self.var = var
       self.title = title
-      self.limit_coord_lon = limit_coord_lon
-      self.limit_coord_lat = limit_coord_lat
-      self.has_legend = has_legend
-      self.name_legend = name_legend
+      self.lon_interval = lon_interval
+      self.lat_interval = lat_interval
+      self.label = label
       self.verbose = verbose
