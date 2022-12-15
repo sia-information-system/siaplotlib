@@ -18,6 +18,7 @@ and install the required dependencies in there.
 - matplotlib
 - cartopy
 - Pillow
+- netCDF4
 
 ## Tests
 
