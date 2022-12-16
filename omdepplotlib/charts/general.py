@@ -3,7 +3,28 @@ import sys
 import io
 import pathlib
 
-class Chart():
+class ChartInterface:
+  def __init__(self) -> None:
+    pass
+
+
+  def plot(self):
+    raise NotImplementedError('This is a virtual method.')
+
+
+  def save(self, filepath: str | pathlib.Path):
+    raise NotImplementedError('This is a virtual method.')
+
+
+  def close(self):
+    raise NotImplementedError('This is a virtual method.')
+
+
+  def get_buffer(self) -> io.BytesIO:
+    raise NotImplementedError('This is a virtual method.')
+
+
+class Chart(ChartInterface):
   def __init__(
     self,
     fig = None,
@@ -41,7 +62,7 @@ class Chart():
       self._fig = None
   
 
-  def to_buffer(self) -> io.BytesIO:
+  def get_buffer(self) -> io.BytesIO:
     img_buff = io.BytesIO()
     self._fig.savefig(img_buff, dpi=100, bbox_inches='tight')
     return img_buff
