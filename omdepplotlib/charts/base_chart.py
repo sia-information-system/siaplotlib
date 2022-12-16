@@ -1,27 +1,8 @@
+from omdepplotlib.charts.interfaces import ChartInterface
 import matplotlib.pyplot as plt
 import sys
 import io
 import pathlib
-
-class ChartInterface:
-  def __init__(self) -> None:
-    pass
-
-
-  def plot(self):
-    raise NotImplementedError('This is a virtual method.')
-
-
-  def save(self, filepath: str | pathlib.Path):
-    raise NotImplementedError('This is a virtual method.')
-
-
-  def close(self):
-    raise NotImplementedError('This is a virtual method.')
-
-
-  def get_buffer(self) -> io.BytesIO:
-    raise NotImplementedError('This is a virtual method.')
 
 
 class Chart(ChartInterface):

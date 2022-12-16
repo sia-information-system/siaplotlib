@@ -2,12 +2,12 @@ import sys
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
-import omdepplotlib.charts.general as general_charts
+from omdepplotlib.charts.base_chart import Chart
 import xarray as xr
 import numpy as np
 
 
-class HeatMap(general_charts.Chart):
+class HeatMap(Chart):
   '''
     Create a heat map chart.
 
@@ -81,7 +81,7 @@ class HeatMap(general_charts.Chart):
     return self
 
 
-class ContourMap(general_charts.Chart):
+class ContourMap(Chart):
   def __init__(
     self,
     dataset: xr.DataArray, 

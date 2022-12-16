@@ -1,10 +1,11 @@
-from omdepplotlib.charts.general import ChartInterface
+from omdepplotlib.charts.interfaces import ChartInterface
 import xarray as xr
 import numpy as np
 from PIL import Image
 import pathlib
 import sys
 import io
+
 
 class ChartBuilder:
   # Public methods.
@@ -20,14 +21,6 @@ class ChartBuilder:
 
   def save(self, filepath: str | pathlib.Path):
     self._chart.save(filepath)
-  
-
-  def build_static(self):
-    raise NotImplementedError('This is a virtual method.')
-  
-
-  def build_gif(self):
-    raise NotImplementedError('This is a virtual method.')
 
   # Private Methods.
 

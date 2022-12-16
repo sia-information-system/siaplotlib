@@ -3,8 +3,9 @@ import sys
 from omdepplotlib.charts import cartographic_map
 from omdepplotlib.charts.raw_image import ChartImage
 from omdepplotlib.preprocessing import subsetting
-from omdepplotlib.chart_building.general import ChartBuilder
+from omdepplotlib.chart_building.base_builder import ChartBuilder
 import xarray as xr
+
 
 class HeatMapBuilder(ChartBuilder):
   # Public methods.
