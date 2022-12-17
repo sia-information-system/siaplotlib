@@ -36,7 +36,6 @@ palette_colors = {
 }
 
 class TestHeatMap(unittest.TestCase):
-
   def test_images(self):
     print('\n--- Starting heatmap static images test. ---', file=sys.stderr)
     time_start = time.time()
@@ -69,8 +68,8 @@ class TestHeatMap(unittest.TestCase):
       print(f'-> Image built.', file=sys.stderr)
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'heatmap-{plot_titles[variable]}'))
       print(f'-> Image saved', file=sys.stderr)
+    
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
-
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
@@ -109,8 +108,8 @@ class TestHeatMap(unittest.TestCase):
         duration_unit='FRAMES_PER_SECOND',
         color_palett=palette_colors[variable])
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'heatmap-{plot_titles[variable]}-ANIMATION.gif'))
+    
     print(f'Gifs stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
-
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
@@ -118,7 +117,6 @@ class TestHeatMap(unittest.TestCase):
 
 
 class TestContourMap(unittest.TestCase):
-
   def test_images(self):
     print('\n--- Starting contour map static images test. ---', file=sys.stderr)
     time_start = time.time()
@@ -152,8 +150,8 @@ class TestContourMap(unittest.TestCase):
       print(f'-> Image built.', file=sys.stderr)
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'contourmap-{plot_titles[variable]}'))
       print(f'-> Image saved', file=sys.stderr)
+    
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
-
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
@@ -194,8 +192,8 @@ class TestContourMap(unittest.TestCase):
         num_levels=9,
         color_palett=palette_colors[variable])
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'contourmap-{plot_titles[variable]}-ANIMATION.gif'))
+    
     print(f'Gifs stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
-
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)

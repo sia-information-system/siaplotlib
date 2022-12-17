@@ -13,10 +13,11 @@ class HeatMapBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
-    verbose: bool = False):
-      super().__init__(
-        dataset=dataset,
-        verbose=verbose)
+    verbose: bool = False
+  ) -> None:
+    super().__init__(
+      dataset=dataset,
+      verbose=verbose)
 
 
   def build_static(
@@ -27,31 +28,32 @@ class HeatMapBuilder(ChartBuilder):
     title: str,
     dim_constraints: dict = {},
     label: str = None,
-    color_palett: str = None):
-      subset, vmin, vmax = subsetting.slice_dice(
-        dataset=self.dataset,
-        dim_constraints=dim_constraints,
-        var=var)
-      
-      lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
-        dataset=subset,
-        lon_dim_name=lon_dim_name,
-        lat_dim_name=lat_dim_name)
-      
-      self._chart = cartographic_map.HeatMap(
-        dataset=subset,
-        label=label,
-        title=title,
-        lon_interval=lon_interval,
-        lat_interval=lat_interval,
-        lat_data=lat_data,
-        lon_data=lon_data,
-        vmax=vmax,
-        vmin=vmin,
-        color_palett=color_palett,
-        verbose=self.verbose)
-      
-      return self
+    color_palett: str = None
+  ):
+    subset, vmin, vmax = subsetting.slice_dice(
+      dataset=self.dataset,
+      dim_constraints=dim_constraints,
+      var=var)
+    
+    lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+      dataset=subset,
+      lon_dim_name=lon_dim_name,
+      lat_dim_name=lat_dim_name)
+    
+    self._chart = cartographic_map.HeatMap(
+      dataset=subset,
+      label=label,
+      title=title,
+      lon_interval=lon_interval,
+      lat_interval=lat_interval,
+      lat_data=lat_data,
+      lon_data=lon_data,
+      vmax=vmax,
+      vmin=vmin,
+      color_palett=color_palett,
+      verbose=self.verbose)
+    
+    return self
 
 
   def build_gif(
@@ -65,70 +67,72 @@ class HeatMapBuilder(ChartBuilder):
     label: str = None,
     color_palett: str = None,
     duration: int = 0.5,
-    duration_unit: str = 'SECONDS_PER_FRAME'):
-      subset, vmin, vmax = subsetting.slice_dice(
-        dataset=self.dataset,
-        dim_constraints=dim_constraints,
-        var=var)
-      
-      lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
-        dataset=subset,
-        lon_dim_name=lon_dim_name,
-        lat_dim_name=lat_dim_name)
+    duration_unit: str = 'SECONDS_PER_FRAME'
+  ):
+    subset, vmin, vmax = subsetting.slice_dice(
+      dataset=self.dataset,
+      dim_constraints=dim_constraints,
+      var=var)
+    
+    lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+      dataset=subset,
+      lon_dim_name=lon_dim_name,
+      lat_dim_name=lat_dim_name)
 
-      if self.verbose:
-        print('Creating images (frames) to create gif.', file=sys.stderr)
-      
-      chart_list = []
-      for  i in range(len(subset[time_dim_name])):
-        time_constraint = {}
-        time_constraint[time_dim_name] = [i]
-        date_subset = subset.isel(time_constraint).squeeze()
-        date = np.datetime_as_string(date_subset[time_dim_name].data, unit='D')
+    if self.verbose:
+      print('Creating images (frames) to create gif.', file=sys.stderr)
+    
+    chart_list = []
+    for  i in range(len(subset[time_dim_name])):
+      time_constraint = {}
+      time_constraint[time_dim_name] = [i]
+      date_subset = subset.isel(time_constraint).squeeze()
+      date = np.datetime_as_string(date_subset[time_dim_name].data, unit='D')
 
-        chart = cartographic_map.HeatMap(
-          dataset=date_subset,
-          label=label,
-          title=f'{title} {date}',
-          lon_interval=lon_interval,
-          lat_interval=lat_interval,
-          lat_data=lat_data,
-          lon_data=lon_data,
-          vmax=vmax,
-          vmin=vmin,
-          color_palett=color_palett,
-          verbose=self.verbose)
-        
-        chart_list.append(chart)
-      
-      img_buff = self._make_gif(
-        chart_list,
-        duration=duration,
-        duration_unit=duration_unit)
-      
-      if self.verbose:
-        print('Closing intermediate figures', file=sys.stderr)
-      for chart in chart_list:
-        chart.close()
-
-      self._chart = ChartImage(
-        img_source=img_buff,
-        var=var, 
-        title=title, 
-        lon_interval=lon_interval, 
+      chart = cartographic_map.HeatMap(
+        dataset=date_subset,
+        label=label,
+        title=f'{title} {date}',
+        lon_interval=lon_interval,
         lat_interval=lat_interval,
-        label=label)
+        lat_data=lat_data,
+        lon_data=lon_data,
+        vmax=vmax,
+        vmin=vmin,
+        color_palett=color_palett,
+        verbose=self.verbose)
       
-      return self
+      chart_list.append(chart)
+    
+    img_buff = self._make_gif(
+      chart_list,
+      duration=duration,
+      duration_unit=duration_unit)
+    
+    if self.verbose:
+      print('Closing intermediate figures', file=sys.stderr)
+    for chart in chart_list:
+      chart.close()
+
+    self._chart = ChartImage(
+      img_source=img_buff,
+      var=var, 
+      title=title, 
+      lon_interval=lon_interval, 
+      lat_interval=lat_interval,
+      label=label)
+    
+    return self
 
 
 class ContourMapBuilder(ChartBuilder):
   def __init__(self,
     dataset: xr.DataArray,
-    verbose: bool = False) -> None:
-      self.dataset = dataset
-      self._chart = None
-      self.verbose = verbose
+    verbose: bool = False
+  ) -> None:
+    self.dataset = dataset
+    self._chart = None
+    self.verbose = verbose
 
   
   def build_static(
@@ -140,32 +144,33 @@ class ContourMapBuilder(ChartBuilder):
     title: str,
     dim_constraints: dict = {},
     label: str = None,
-    color_palett: str = None):
-      subset, vmin, vmax = subsetting.slice_dice(
-        dataset=self.dataset,
-        dim_constraints=dim_constraints,
-        var=var)
-      
-      lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
-        dataset=subset,
-        lon_dim_name=lon_dim_name,
-        lat_dim_name=lat_dim_name)
-      
-      self._chart = cartographic_map.ContourMap(
-        dataset=subset,
-        label=label,
-        title=title,
-        lon_interval=lon_interval,
-        lat_interval=lat_interval,
-        lat_data=lat_data,
-        lon_data=lon_data,
-        vmax=vmax,
-        vmin=vmin,
-        num_levels=num_levels,
-        color_palett=color_palett,
-        verbose=self.verbose)
-      
-      return self
+    color_palett: str = None
+  ):
+    subset, vmin, vmax = subsetting.slice_dice(
+      dataset=self.dataset,
+      dim_constraints=dim_constraints,
+      var=var)
+    
+    lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+      dataset=subset,
+      lon_dim_name=lon_dim_name,
+      lat_dim_name=lat_dim_name)
+    
+    self._chart = cartographic_map.ContourMap(
+      dataset=subset,
+      label=label,
+      title=title,
+      lon_interval=lon_interval,
+      lat_interval=lat_interval,
+      lat_data=lat_data,
+      lon_data=lon_data,
+      vmax=vmax,
+      vmin=vmin,
+      num_levels=num_levels,
+      color_palett=color_palett,
+      verbose=self.verbose)
+    
+    return self
 
 
   def build_gif(
@@ -180,59 +185,61 @@ class ContourMapBuilder(ChartBuilder):
     label: str = None,
     color_palett: str = None,
     duration: int = 0.5,
-    duration_unit: str = 'SECONDS_PER_FRAME'):
-      subset, vmin, vmax = subsetting.slice_dice(
-        dataset=self.dataset,
-        dim_constraints=dim_constraints,
-        var=var)
-      
-      lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
-        dataset=subset,
-        lon_dim_name=lon_dim_name,
-        lat_dim_name=lat_dim_name)
+    duration_unit: str = 'SECONDS_PER_FRAME'
+  ):
+    subset, vmin, vmax = subsetting.slice_dice(
+      dataset=self.dataset,
+      dim_constraints=dim_constraints,
+      var=var)
+    
+    lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+      dataset=subset,
+      lon_dim_name=lon_dim_name,
+      lat_dim_name=lat_dim_name)
 
-      if self.verbose:
-        print('Creating images (frames) to create gif.', file=sys.stderr)
-      
-      chart_list = []
-      for  i in range(len(subset[time_dim_name])):
-        time_constraint = {}
-        time_constraint[time_dim_name] = [i]
-        date_subset = subset.isel(time_constraint).squeeze()
-        date = np.datetime_as_string(date_subset[time_dim_name].data, unit='D')
+    if self.verbose:
+      print('Creating images (frames) to create gif.', file=sys.stderr)
+    
+    chart_list = []
+    for  i in range(len(subset[time_dim_name])):
+      time_constraint = {}
+      time_constraint[time_dim_name] = [i]
+      date_subset = subset.isel(time_constraint).squeeze()
+      date = np.datetime_as_string(date_subset[time_dim_name].data, unit='D')
 
-        chart = cartographic_map.ContourMap(
-          dataset=date_subset,
-          label=label,
-          title=f'{title} {date}',
-          lon_interval=lon_interval,
-          lat_interval=lat_interval,
-          lat_data=lat_data,
-          lon_data=lon_data,
-          vmax=vmax,
-          vmin=vmin,
-          color_palett=color_palett,
-          num_levels=num_levels,
-          verbose=self.verbose)
-        
-        chart_list.append(chart)
-      
-      img_buff = self._make_gif(
-        chart_list,
-        duration=duration,
-        duration_unit=duration_unit)
-      
-      if self.verbose:
-        print('Closing intermediate figures', file=sys.stderr)
-      for chart in chart_list:
-        chart.close()
-
-      self._chart = ChartImage(
-        img_source=img_buff,
-        var=var, 
-        title=title, 
-        lon_interval=lon_interval, 
+      chart = cartographic_map.ContourMap(
+        dataset=date_subset,
+        label=label,
+        title=f'{title} {date}',
+        lon_interval=lon_interval,
         lat_interval=lat_interval,
-        label=label)
+        lat_data=lat_data,
+        lon_data=lon_data,
+        vmax=vmax,
+        vmin=vmin,
+        color_palett=color_palett,
+        num_levels=num_levels,
+        verbose=self.verbose)
       
-      return self
+      chart_list.append(chart)
+    
+    img_buff = self._make_gif(
+      chart_list,
+      duration=duration,
+      duration_unit=duration_unit)
+    
+    if self.verbose:
+      print('Closing intermediate figures', file=sys.stderr)
+    for chart in chart_list:
+      chart.close()
+
+    self._chart = ChartImage(
+      img_source=img_buff,
+      var=var, 
+      title=title, 
+      lon_interval=lon_interval, 
+      lat_interval=lat_interval,
+      label=label,
+      verbose=self.verbose)
+    
+    return self

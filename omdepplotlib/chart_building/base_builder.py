@@ -13,18 +13,27 @@ class ChartBuilder:
   def __init__(
     self,
     dataset: xr.DataArray,
-    verbose: bool = False) -> None:
-      self._chart: ChartInterface = None
-      self.dataset = dataset
-      self.verbose = verbose
+    verbose: bool = False
+  ) -> None:
+    self._chart: ChartInterface = None
+    self.dataset = dataset
+    self.verbose = verbose
 
 
-  def save(self, filepath: str | pathlib.Path):
+  def save(
+    self,
+    filepath: str | pathlib.Path
+  ) -> None:
     self._chart.save(filepath)
 
   # Private Methods.
 
-  def _make_gif(self, charts: list, duration: float = 0.5, duration_unit: str = 'SECONDS_PER_FRAME'):
+  def _make_gif(
+    self,
+    charts: list,
+    duration: float = 0.5,
+    duration_unit: str = 'SECONDS_PER_FRAME'
+  ) -> io.BytesIO:
     if self.verbose:
       print('Making gif.', file=sys.stderr)
     

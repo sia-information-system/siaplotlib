@@ -8,12 +8,12 @@ import numpy as np
 
 
 class HeatMap(Chart):
-  '''
-    Create a heat map chart.
+  """
+  Create a heat map chart.
 
-    lon_interval is a list with [west coord, east coord]
-    lat_interval is a list with [south coord, north coord]
-  '''
+  lon_interval is a list with [west coord, east coord]
+  lat_interval is a list with [south coord, north coord]
+  """
   def __init__(
     self,
     dataset: xr.DataArray, 
@@ -28,22 +28,22 @@ class HeatMap(Chart):
     color_palett: str = 'viridis',
     build_on_create: bool =True,
     verbose: bool = False
-    ):
-      self.dataset = dataset
-      self.title = title
-      self.lon_interval = lon_interval
-      self.lat_interval = lat_interval
-      self.lon_data = lon_data
-      self.lat_data = lat_data
-      self.label = label
-      self.vmin = vmin
-      self.vmax = vmax
-      self.color_palett = color_palett
+  ) -> None:
+    self.dataset = dataset
+    self.title = title
+    self.lon_interval = lon_interval
+    self.lat_interval = lat_interval
+    self.lon_data = lon_data
+    self.lat_data = lat_data
+    self.label = label
+    self.vmin = vmin
+    self.vmax = vmax
+    self.color_palett = color_palett
 
-      super().__init__(verbose = verbose)
+    super().__init__(verbose = verbose)
 
-      if build_on_create:
-        self.build()
+    if build_on_create:
+      self.build()
 
 
   def build(self):
@@ -82,6 +82,12 @@ class HeatMap(Chart):
 
 
 class ContourMap(Chart):
+  """
+  Create a heat map chart.
+
+  lon_interval is a list with [west coord, east coord]
+  lat_interval is a list with [south coord, north coord]
+  """
   def __init__(
     self,
     dataset: xr.DataArray, 
@@ -97,22 +103,22 @@ class ContourMap(Chart):
     color_palett: str = 'viridis', # Not in use.
     build_on_create: bool =True,
     verbose: bool = False
-    ) -> None:
-      super().__init__(verbose=verbose)
-      self.dataset = dataset
-      self.title = title
-      self.lon_interval = lon_interval
-      self.lat_interval = lat_interval
-      self.lon_data = lon_data
-      self.lat_data = lat_data
-      self.label = label
-      self.vmin = vmin
-      self.vmax = vmax
-      self.num_levels = num_levels
-      self.color_palett = color_palett
+  ) -> None:
+    super().__init__(verbose=verbose)
+    self.dataset = dataset
+    self.title = title
+    self.lon_interval = lon_interval
+    self.lat_interval = lat_interval
+    self.lon_data = lon_data
+    self.lat_data = lat_data
+    self.label = label
+    self.vmin = vmin
+    self.vmax = vmax
+    self.num_levels = num_levels
+    self.color_palett = color_palett
 
-      if build_on_create:
-        self.build()
+    if build_on_create:
+      self.build()
 
 
   def build(self):
