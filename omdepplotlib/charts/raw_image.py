@@ -1,10 +1,10 @@
 import io
 import sys
 import pathlib
-from omdepplotlib.charts.base_chart import ChartInterface
+import omdepplotlib.charts.interfaces as chart_interfaces
 
 
-class RawImage(ChartInterface):
+class RawImage(chart_interfaces.ChartInterface):
   def __init__(
     self,
     img_source,

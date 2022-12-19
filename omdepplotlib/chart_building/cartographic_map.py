@@ -1,13 +1,13 @@
 import numpy as np
 import sys
 from omdepplotlib.charts import cartographic_map
-from omdepplotlib.charts.raw_image import ChartImage
+from omdepplotlib.charts import raw_image
 from omdepplotlib.preprocessing import subsetting
-from omdepplotlib.chart_building.base_builder import ChartBuilder
+from omdepplotlib.chart_building import base_builder
 import xarray as xr
 
 
-class HeatMapBuilder(ChartBuilder):
+class HeatMapBuilder(base_builder.ChartBuilder):
   # Public methods.
 
   def __init__(
@@ -56,7 +56,7 @@ class HeatMapBuilder(ChartBuilder):
     return self
 
 
-  def build_gif(
+  def build_animation(
     self,
     var: str,
     lat_dim_name: str,
@@ -114,7 +114,7 @@ class HeatMapBuilder(ChartBuilder):
     for chart in chart_list:
       chart.close()
 
-    self._chart = ChartImage(
+    self._chart = raw_image.ChartImage(
       img_source=img_buff,
       var=var, 
       title=title, 
@@ -125,7 +125,7 @@ class HeatMapBuilder(ChartBuilder):
     return self
 
 
-class ContourMapBuilder(ChartBuilder):
+class ContourMapBuilder(base_builder.ChartBuilder):
   def __init__(self,
     dataset: xr.DataArray,
     verbose: bool = False
@@ -173,7 +173,7 @@ class ContourMapBuilder(ChartBuilder):
     return self
 
 
-  def build_gif(
+  def build_animation(
     self,
     var: str,
     lat_dim_name: str,
@@ -233,7 +233,7 @@ class ContourMapBuilder(ChartBuilder):
     for chart in chart_list:
       chart.close()
 
-    self._chart = ChartImage(
+    self._chart = raw_image.ChartImage(
       img_source=img_buff,
       var=var, 
       title=title, 

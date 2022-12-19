@@ -1,4 +1,4 @@
-from omdepplotlib.charts.interfaces import ChartInterface
+import omdepplotlib.charts.interfaces as chart_interfaces
 import xarray as xr
 import numpy as np
 from PIL import Image
@@ -15,7 +15,7 @@ class ChartBuilder:
     dataset: xr.DataArray,
     verbose: bool = False
   ) -> None:
-    self._chart: ChartInterface = None
+    self._chart: chart_interfaces.ChartInterface = None
     self.dataset = dataset
     self.verbose = verbose
 

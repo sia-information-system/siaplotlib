@@ -5,7 +5,7 @@ import xarray as xr
 def slice_dice(
   dataset: xr.DataArray,
   dim_constraints: dict,
-  var: str = None,
+  var: str | list = None,
   rounding_precision: int = 3
 ) -> tuple[xr.DataArray, float | xr.DataArray, float | xr.DataArray]:
   """
@@ -13,17 +13,37 @@ def slice_dice(
   Also get valid minimun and maximun values for each variable. Minimun an maximun
   values are floats if a single variable was selected, or a DataArray if not.
   """
+  # Initializing.
   vmin = 0
   vmax = 0
+  subset = dataset
+
+  # Selecting variables of interest.
   if var is not None:
-    subset = dataset[var].sel(dim_constraints, method = 'nearest').squeeze()
-    vmin = np.round( subset.min().data, rounding_precision )
-    vmax = np.round( subset.max().data, rounding_precision )
-  else:
-    subset = dataset.sel(dim_constraints, method = 'nearest').squeeze()
+    subset = dataset[var]
+  
+  constraints_w_slices = {}
+  constraints_w_no_slices = {}
+  for dim_name in dim_constraints.keys():
+    if type(dim_constraints[dim_name]) is slice:
+      constraints_w_slices[dim_name] = dim_constraints[dim_name]
+    else:
+      constraints_w_no_slices[dim_name] = dim_constraints[dim_name]
+  
+  # Apply dimension constraints
+  subset = subset.sel(constraints_w_no_slices, method = 'nearest').squeeze()
+  subset = subset.sel(constraints_w_slices).squeeze()
+
+  # Minimun and maximun.
+  if(len(subset) > 0):
     vmin = np.round( subset.min(), rounding_precision )
     vmax = np.round( subset.max(), rounding_precision )
-    
+    try:
+      vmin = float(vmin)
+      vmax = float(vmax)
+    except:
+      pass
+  
   return subset, vmin, vmax
 
 

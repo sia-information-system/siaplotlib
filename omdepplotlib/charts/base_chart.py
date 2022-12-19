@@ -1,11 +1,11 @@
-from omdepplotlib.charts.interfaces import ChartInterface
+import omdepplotlib.charts.interfaces as chart_interfaces
 import matplotlib.pyplot as plt
 import sys
 import io
 import pathlib
 
 
-class Chart(ChartInterface):
+class Chart(chart_interfaces.ChartInterface):
   def __init__(
     self,
     fig = None,
@@ -21,7 +21,7 @@ class Chart(ChartInterface):
   def plot(self) -> None:
     if self._fig is None:
       # TODO: Raise and appropriate exception class.
-      raise RuntimeError('Heatmap figure has not been created.')
+      raise RuntimeError('Pyplot figure has not been created.')
     self._fig.show()
   
 
@@ -31,7 +31,7 @@ class Chart(ChartInterface):
   ) -> None:
     if self._fig is None:
       # TODO: Raise and appropriate exception class.
-      raise RuntimeError('Heatmap figure has not been created.')
+      raise RuntimeError('Pyplot figure has not been created.')
   
     self._fig.savefig(filepath, dpi=100, bbox_inches='tight')
     self._fig_path = filepath
