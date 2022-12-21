@@ -1,6 +1,6 @@
 from omdepplotlib.chart_building import base_builder
-from omdepplotlib.preprocessing import subsetting
-from omdepplotlib.charts import time_series
+from omdepplotlib.preprocessing import munging
+from omdepplotlib.charts import line_chart
 import xarray as xr
 import numpy as np
 import pandas as pd
@@ -33,12 +33,12 @@ class SinglePointTimeSeriesBuilder(base_builder.ChartBuilder):
     x_label: str = None,
     dim_constraints: dict[str, list] = {},
   ):
-    subset, _, _ = subsetting.slice_dice(
+    subset, _, _ = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
       var=var)
     
-    lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+    lon_data, lat_data, lon_interval, lat_interval = munging.get_coords(
       dataset=subset,
       lon_dim_name=lon_dim_name,
       lat_dim_name=lat_dim_name)
@@ -86,7 +86,7 @@ class SinglePointTimeSeriesBuilder(base_builder.ChartBuilder):
     lon_interval[1] += 3
     lat_interval[0] -= 3
     lat_interval[1] += 3
-    self._chart = time_series.SinglePointTimeSeries(
+    self._chart = line_chart.SinglePointTimeSeries(
       series_names=series_names,
       series_data=series_list,
       lon=float(lon_data),
@@ -111,3 +111,69 @@ class SinglePointTimeSeriesBuilder(base_builder.ChartBuilder):
       pass
     series = pd.Series(values, index=indexes)
     return series, s_name
+
+
+class SinglePointVerticalProfileBuilder(base_builder.ChartBuilder):
+  # Public methods.
+
+  def __init__(
+    self,
+    dataset: xr.DataArray,
+    verbose: bool = False
+  ) -> None:
+    super().__init__(
+      dataset=dataset,
+      verbose=verbose)
+
+
+  def build_static(
+    self, 
+    var: str,
+    lat_dim_name: str,
+    lon_dim_name: str,
+    depth_dim_name: str,
+    grouping_dim_name: str,
+    title: str,
+    grouping_dim_label: str,
+    y_label: str,
+    x_label: str = None,
+    dim_constraints: dict[str, list] = {},
+  ):
+    subset, _, _ = munging.slice_dice(
+      dataset=self.dataset,
+      dim_constraints=dim_constraints,
+      var=var)
+    
+    lon_data, lat_data, lon_interval, lat_interval = munging.get_coords(
+      dataset=subset,
+      lon_dim_name=lon_dim_name,
+      lat_dim_name=lat_dim_name)
+    
+    show_series_names = True
+    if grouping_dim_name is None:
+      show_series_names = False
+    
+    series_list = munging.group_into_series(
+      dataset=subset,
+      x_dim_name=depth_dim_name,
+      grouping_dim_name=grouping_dim_name,
+      reverse_axis=True)
+
+    lon_interval[0] -= 3
+    lon_interval[1] += 3
+    lat_interval[0] -= 3
+    lat_interval[1] += 3
+    self._chart = line_chart.SinglePointVerticalProfile(
+      series_data=series_list,
+      lon=float(lon_data),
+      lat=float(lat_data),
+      lon_interval=lon_interval,
+      lat_interval=lat_interval,
+      title=title,
+      grouping_var_label=grouping_dim_label,
+      y_label=y_label,
+      x_label=x_label,
+      show_series_names=show_series_names,
+      verbose=self.verbose)
+    
+    return self

@@ -3,7 +3,7 @@ import sys
 import unittest
 import time
 import xarray as xr
-from omdepplotlib.chart_building import cartographic_map, time_series
+from omdepplotlib.chart_building import cartographic_map, line_chart
 import tools.general_utils as general_utils
 
 VISUALIZATIONS_DIR = pathlib.Path(pathlib.Path(__file__).parent.absolute(), 'tmp', 'visualizations')
@@ -26,6 +26,13 @@ plot_legend_names = {
   'so': 'Practical Salinity Unit',
   'zos': 'Meters'
 }
+
+# plot_legend_names = {
+#     'thetao': 'Temperature (C°)',
+#     'vo': 'Northward velocity (m/s)',
+#     'uo': 'Eastward velocity (m/s)',
+#     'so': 'Salinity (PSU)',
+# }
 
 palette_colors = {
     'thetao': 'OrRd',
@@ -208,7 +215,7 @@ class TestSinglePointTimeSeries(unittest.TestCase):
       DATA_DIR,
       'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
     dataset = xr.open_dataset(dataset_path)
-    vis = time_series.SinglePointTimeSeriesBuilder(dataset=dataset, verbose=True)
+    vis = line_chart.SinglePointTimeSeriesBuilder(dataset=dataset, verbose=True)
 
     date_range = slice('2020-01-01', '2020-12-01')
     for variable in variables:
@@ -236,7 +243,7 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         lon_dim_name='longitude',
         grouping_dim_name=grouping_dim_name,
         time_dim_name='time',
-        y_label=plot_titles[variable],
+        y_label=plot_legend_names[variable],
         x_label='Dates'
       )
       print(f'-> Image built.', file=sys.stderr)
@@ -257,7 +264,7 @@ class TestSinglePointTimeSeries(unittest.TestCase):
       DATA_DIR,
       'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
     dataset = xr.open_dataset(dataset_path)
-    vis = time_series.SinglePointTimeSeriesBuilder(dataset=dataset, verbose=True)
+    vis = line_chart.SinglePointTimeSeriesBuilder(dataset=dataset, verbose=True)
 
     date_range = slice('2020-01-01', '2020-12-01')
     for variable in variables:
@@ -285,11 +292,55 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         lon_dim_name='longitude',
         grouping_dim_name=grouping_dim_name,
         time_dim_name='time',
-        y_label=plot_titles[variable],
+        y_label=plot_legend_names[variable],
         x_label='Dates'
       )
       print(f'-> Image built.', file=sys.stderr)
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'one-depth-single-point-time-series-{plot_titles[variable]}'))
+      print(f'-> Image saved', file=sys.stderr)
+    
+    print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
+    print('Finishing test.', file=sys.stderr)
+    time_end = time.time()
+    print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
+    self.assertTrue(True)
+
+
+class TestSinglePointVerticalProfile(unittest.TestCase):
+  def test_many_dates(self):
+    print('\n--- Starting time series static images test with many dates. ---', file=sys.stderr)
+    time_start = time.time()
+    dataset_path = pathlib.Path(
+      DATA_DIR,
+      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+    dataset = xr.open_dataset(dataset_path)
+    vis = line_chart.SinglePointVerticalProfileBuilder(dataset=dataset, verbose=True)
+
+    date_range = ['2020-03-01', '2020-06-01', '2020-09-01', '2020-12-01']
+    for variable in variables:
+      grouping_dim_name='time'
+      dim_constraints = {
+        'time': date_range,
+        'latitude': 21,
+        'longitude': -86
+      }
+      if variable == 'zos':
+        continue
+      print(f'-> Static single-point vertical profile image for "{variable}" variable.', file=sys.stderr)
+      vis.build_static(
+        var=variable,
+        title=f'{plot_titles[variable]} by depth',
+        grouping_dim_label='Dates',
+        dim_constraints=dim_constraints,
+        lat_dim_name='latitude',
+        lon_dim_name='longitude',
+        grouping_dim_name=grouping_dim_name,
+        depth_dim_name='depth',
+        y_label='Depth',
+        x_label=plot_legend_names[variable]
+      )
+      print(f'-> Image built.', file=sys.stderr)
+      vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'single-point-vertical-profile-{plot_titles[variable]}'))
       print(f'-> Image saved', file=sys.stderr)
     
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)

@@ -2,7 +2,7 @@ import numpy as np
 import sys
 from omdepplotlib.charts import cartographic_map
 from omdepplotlib.charts import raw_image
-from omdepplotlib.preprocessing import subsetting
+from omdepplotlib.preprocessing import munging
 from omdepplotlib.chart_building import base_builder
 import xarray as xr
 
@@ -30,12 +30,12 @@ class HeatMapBuilder(base_builder.ChartBuilder):
     label: str = None,
     color_palett: str = None
   ):
-    subset, vmin, vmax = subsetting.slice_dice(
+    subset, vmin, vmax = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
       var=var)
     
-    lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+    lon_data, lat_data, lon_interval, lat_interval = munging.get_coords(
       dataset=subset,
       lon_dim_name=lon_dim_name,
       lat_dim_name=lat_dim_name)
@@ -69,12 +69,12 @@ class HeatMapBuilder(base_builder.ChartBuilder):
     duration: int = 0.5,
     duration_unit: str = 'SECONDS_PER_FRAME'
   ):
-    subset, vmin, vmax = subsetting.slice_dice(
+    subset, vmin, vmax = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
       var=var)
     
-    lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+    lon_data, lat_data, lon_interval, lat_interval = munging.get_coords(
       dataset=subset,
       lon_dim_name=lon_dim_name,
       lat_dim_name=lat_dim_name)
@@ -146,12 +146,12 @@ class ContourMapBuilder(base_builder.ChartBuilder):
     label: str = None,
     color_palett: str = None
   ):
-    subset, vmin, vmax = subsetting.slice_dice(
+    subset, vmin, vmax = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
       var=var)
     
-    lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+    lon_data, lat_data, lon_interval, lat_interval = munging.get_coords(
       dataset=subset,
       lon_dim_name=lon_dim_name,
       lat_dim_name=lat_dim_name)
@@ -187,12 +187,12 @@ class ContourMapBuilder(base_builder.ChartBuilder):
     duration: int = 0.5,
     duration_unit: str = 'SECONDS_PER_FRAME'
   ):
-    subset, vmin, vmax = subsetting.slice_dice(
+    subset, vmin, vmax = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
       var=var)
     
-    lon_data, lat_data, lon_interval, lat_interval = subsetting.get_coords(
+    lon_data, lat_data, lon_interval, lat_interval = munging.get_coords(
       dataset=subset,
       lon_dim_name=lon_dim_name,
       lat_dim_name=lat_dim_name)
