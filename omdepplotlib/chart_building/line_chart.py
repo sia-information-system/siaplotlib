@@ -31,7 +31,7 @@ class SinglePointTimeSeriesBuilder(base_builder.ChartBuilder):
     x_label: str = None,
     dim_constraints: dict[str, list] = {},
   ):
-    subset, _, _ = munging.slice_dice(
+    subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
       var=var)
@@ -98,7 +98,7 @@ class SinglePointVerticalProfileBuilder(base_builder.ChartBuilder):
     x_label: str = None,
     dim_constraints: dict[str, list] = {},
   ):
-    subset, _, _ = munging.slice_dice(
+    subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
       var=var)

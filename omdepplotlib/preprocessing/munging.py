@@ -7,19 +7,13 @@ from datetime import datetime
 def slice_dice(
   dataset: xr.DataArray,
   dim_constraints: dict,
-  var: str | list = None,
-  rounding_precision: int = 3
-) -> tuple[xr.DataArray, float | xr.DataArray, float | xr.DataArray]:
+  var: str | list = None
+) -> xr.DataArray:
   """
-  Make a subset by dimension contraints and a selected (and optional) variable.
-  Also get valid minimun and maximun values for each variable. Minimun an maximun
-  values are floats if a single variable was selected, or a DataArray if not.
-
-  It returns: subset, vmin, vmax
+  Make a subset by dimension contraints and a selected (and optional)
+  list of variables. A single variable name can be passed as a string.
   """
   # Initializing.
-  vmin = 0
-  vmax = 0
   subset = dataset
 
   # Selecting variables of interest.
@@ -38,17 +32,7 @@ def slice_dice(
   subset = subset.sel(constraints_w_no_slices, method = 'nearest').squeeze()
   subset = subset.sel(constraints_w_slices).squeeze()
 
-  # Minimun and maximun.
-  if(len(subset) > 0):
-    vmin = np.round( subset.min(), rounding_precision )
-    vmax = np.round( subset.max(), rounding_precision )
-    try:
-      vmin = float(vmin)
-      vmax = float(vmax)
-    except:
-      pass
-  
-  return subset, vmin, vmax
+  return subset
 
 
 def get_coords(
