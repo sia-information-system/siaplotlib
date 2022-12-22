@@ -335,7 +335,7 @@ class TestSinglePointVerticalProfile(unittest.TestCase):
         lat_dim_name='latitude',
         lon_dim_name='longitude',
         grouping_dim_name=grouping_dim_name,
-        depth_dim_name='depth',
+        y_dim_name='depth',
         y_label='Depth',
         x_label=plot_legend_names[variable]
       )

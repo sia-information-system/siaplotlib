@@ -87,20 +87,20 @@ def make_series(
   it can be rounded with a certain name_precition (by default name_precition=3).
   If name_precition < 0, then no rounding is done.
   """
-  s_name = name
+  s_name = str(name)
   if name_precition >= 0:
     try:
       s_name = str(np.round(name, name_precition))
     except:
       pass
     try:
-      s_name = datetime.fromisoformat(s_name)
+      s_name = datetime.fromisoformat(name)
       pass
     except:
       pass
     try:
-      if type(s_name) is np.datetime64:
-        date_str = np.datetime_as_string(s_name)
+      if type(name) is np.datetime64:
+        date_str = np.datetime_as_string(name)
         s_name = datetime.strptime(date_str,'%Y-%m-%dT%H:%M:%S.%f000').strftime("%Y-%m-%d %H:%M:%S")
     except:
       pass
@@ -127,7 +127,6 @@ def group_into_series(
   else:
     groups = np.array(None)
   series_list = []
-
   if len(groups.shape) == 0:
     data = dataset.data
     index = dataset[x_dim_name].data

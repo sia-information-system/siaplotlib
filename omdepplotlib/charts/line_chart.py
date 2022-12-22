@@ -7,7 +7,6 @@ import cartopy.feature as cfeature
 class SinglePointTimeSeries(base_chart.Chart):
   def __init__(
     self,
-    series_names: list[str],
     series_data: list[pd.Series],
     lon: float,
     lat: float,
@@ -22,7 +21,6 @@ class SinglePointTimeSeries(base_chart.Chart):
     verbose: bool = False
   ) -> None:
     super().__init__(verbose=verbose)
-    self.series_names = series_names
     self.series_data = series_data
     self.lon = lon
     self.lat = lat
@@ -43,11 +41,11 @@ class SinglePointTimeSeries(base_chart.Chart):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    for i in range(len(self.series_names)):
+    for series in self.series_data:
       ax.plot(
-        self.series_data[i].index,
-        self.series_data[i].values,
-        label=self.series_names[i])                                                      # plot the time serie
+        series.index,
+        series.values,
+        label=series.name)                                                      # plot the time serie
 
     ax.grid()                                                                            # add the grid lines
     ax.set_title(self.title)
