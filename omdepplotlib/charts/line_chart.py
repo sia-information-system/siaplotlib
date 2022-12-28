@@ -55,7 +55,7 @@ class SinglePointTimeSeries(base_chart.Chart):
     if self.show_series_names:
       ax.legend(loc='center right', title=self.grouping_var_label)
     fig.suptitle(
-      f'Longitude: {self.lon}°E\nLatitude: {self.lat}°N',
+      f'Longitude: {self.lon}°\nLatitude: {self.lat}°',
       horizontalalignment='left',
       x=0.12,
       y=1.05)                                                                            # Display the coordinates on the plot
@@ -124,7 +124,7 @@ class SinglePointVerticalProfile(base_chart.Chart):
     if self.show_series_names:
       ax.legend(loc='upper left', title=self.grouping_var_label)
     fig.suptitle(
-      f'Longitude: {self.lon}°E\nLatitude: {self.lat}°N', 
+      f'Longitude: {self.lon}°\nLatitude: {self.lat}°',
       horizontalalignment='left',
       x=0.12,
       y=1.05) 

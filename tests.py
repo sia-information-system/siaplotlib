@@ -379,7 +379,7 @@ class TestVerticalSlice(unittest.TestCase):
         title=f'{plot_titles[variable]} on {date}',
         measure_label=plot_measure_label[variable],
         y_label='Depth (m)',
-        x_label='latitude (°)',
+        x_label='Latitude (°)',
         dim_constraints=dim_constraints
       )
       print(f'-> Image built.', file=sys.stderr)
@@ -421,7 +421,7 @@ class TestVerticalSlice(unittest.TestCase):
         title=f'{plot_titles[variable]} on {date}',
         measure_label=plot_measure_label[variable],
         y_label='Depth (m)',
-        x_label='latitude (°)',
+        x_label='Longitude (°)',
         dim_constraints=dim_constraints
       )
       print(f'-> Image built.', file=sys.stderr)
@@ -464,7 +464,7 @@ class TestVerticalSlice(unittest.TestCase):
         title=f'{plot_titles[variable]}',
         measure_label=plot_measure_label[variable],
         y_label='Depth (m)',
-        x_label='latitude (°)',
+        x_label='Latitude (°)',
         dim_constraints=dim_constraints,
         duration=5,
         duration_unit='FRAMES_PER_SECOND',
@@ -509,7 +509,7 @@ class TestVerticalSlice(unittest.TestCase):
         title=f'{plot_titles[variable]}',
         measure_label=plot_measure_label[variable],
         y_label='Depth (m)',
-        x_label='latitude (°)',
+        x_label='Longitude (°)',
         dim_constraints=dim_constraints,
         duration=5,
         duration_unit='FRAMES_PER_SECOND',
