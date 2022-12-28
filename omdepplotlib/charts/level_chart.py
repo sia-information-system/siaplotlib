@@ -25,7 +25,7 @@ class HeatMap(base_chart.Chart):
     vmax: float,
     title: str, 
     label: str = None,
-    color_palett: str = 'viridis',
+    color_palette: str = 'viridis',
     build_on_create: bool =True,
     verbose: bool = False
   ) -> None:
@@ -38,7 +38,7 @@ class HeatMap(base_chart.Chart):
     self.label = label
     self.vmin = vmin
     self.vmax = vmax
-    self.color_palett = color_palett
+    self.color_palette = color_palette
 
     super().__init__(verbose = verbose)
 
@@ -67,7 +67,7 @@ class HeatMap(base_chart.Chart):
       self.dataset,
       vmin=self.vmin,
       vmax=self.vmax,
-      cmap=self.color_palett)
+      cmap=self.color_palette)
 
     cbar = f.colorbar(im, ax=ax)
     if self.label is not None:
@@ -100,7 +100,7 @@ class ContourMap(base_chart.Chart):
     num_levels: int,
     title: str, 
     label: str = None,
-    color_palett: str = 'viridis', # Not in use.
+    color_palette: str = 'viridis', # Not in use.
     build_on_create: bool =True,
     verbose: bool = False
   ) -> None:
@@ -115,7 +115,7 @@ class ContourMap(base_chart.Chart):
     self.vmin = vmin
     self.vmax = vmax
     self.num_levels = num_levels
-    self.color_palett = color_palett
+    self.color_palette = color_palette
 
     if build_on_create:
       self.build()
@@ -167,3 +167,70 @@ class ContourMap(base_chart.Chart):
       print(f'Image created.', file=sys.stderr)
     
     return self
+
+class VerticalSlice(base_chart.Chart):
+  def __init__(
+    self,
+    x_values: np.ndarray,
+    y_values: np.ndarray,
+    z_values: np.ndarray,
+    vmin: float,
+    vmax: float,
+    lon_interval: list[float],
+    lat_interval: list[float],
+    title: str,
+    measure_label: str,
+    y_label: str,
+    x_label: str = None,
+    color_palette: str = 'plasma',
+    build_on_create: bool = True,
+    verbose=False
+  ) -> None:
+    super().__init__(verbose=verbose)
+    self.x_values = x_values
+    self.y_values = y_values
+    self.z_values = z_values
+    self.vmin = vmin
+    self.vmax = vmax
+    self.lon_interval = lon_interval
+    self.lat_interval = lat_interval
+    self.title = title
+    self.measure_label = measure_label
+    self.y_label = y_label
+    self.x_label = x_label
+    self.color_palette = color_palette
+
+    if build_on_create:
+      self.build()
+
+
+  def build(self):
+    # Define the caracteristics of the plot
+    f = plt.figure()                                                      # create a figure and define its size
+    ax = f.add_subplot(111)                                               # create the axes of the plot
+    ax.set_title(self.title)                                              # set the title of the figure
+    ax.set_ylabel(self.y_label)                                           # set the  y axis label
+    ax.set_xlabel(self.x_label)                                           # set the  y axis label
+    ax.invert_yaxis()                                                     # reverse the y axis 
+
+    im = ax.pcolor(
+      self.x_values,
+      self.y_values,
+      self.z_values,
+      vmin=self.vmin,
+      vmax=self.vmax,
+      cmap=self.color_palette)                                            # display the temperature
+    cbar = f.colorbar(im,ax=ax)                                           # add the colorbar
+    cbar.set_label(self.measure_label)                                    # add the title of the colorbar
+
+    # Display the locations of the line on a mini map
+    ax_mini_map = f.add_axes([0.74, 0.97, 0.2, 0.2], projection=ccrs.PlateCarree())  # create the minimap and define its projection
+    gl = ax_mini_map.gridlines(draw_labels=True)                                     # add the coastlines
+    gl.right_labels = False                                                          # remove latitude labels on the right
+    gl.top_labels = False                                                            # remove longitude labels on the top
+    ax_mini_map.add_feature(cfeature.LAND, zorder=1, edgecolor='k')                  # add land mask 
+    ax_mini_map.set_extent(
+      self.lon_interval + self.lat_interval,
+      crs=ccrs.PlateCarree())                                                        # define the extent of the map [lon_min,lon_max,lat_min,lat_max]
+    ax_mini_map.plot(self.lon_interval,self.lat_interval,'r')                        # add the location of the line on the mini map
+    self._fig = f
