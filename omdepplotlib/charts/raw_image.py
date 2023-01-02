@@ -39,18 +39,18 @@ class ChartImage(RawImage):
   def __init__(
     self,
     img_source,
-    var, 
+    var_name, 
     title, 
     lon_interval=[], 
     lat_interval=[],
-    label=None,
+    var_label=None,
     verbose=False
   ) -> None:
     super().__init__(
       img_source=img_source,
       verbose=verbose)
-    self.var = var
+    self.var_name = var_name
     self.title = title
     self.lon_interval = lon_interval
     self.lat_interval = lat_interval
-    self.label = label
+    self.var_label = var_label

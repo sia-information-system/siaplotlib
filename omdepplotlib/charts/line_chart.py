@@ -5,6 +5,15 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 
 class SinglePointTimeSeries(base_chart.Chart):
+  """
+  In order to plot each series in the graph,
+  the following properties of a pandas.Series
+  are used as follows.
+
+  * index: used in the 'x' axis.
+  * values: used in the 'y' axis.
+  * names: used to label the current series.
+  """
   def __init__(
     self,
     series_data: list[pd.Series],
@@ -76,6 +85,15 @@ class SinglePointTimeSeries(base_chart.Chart):
 
 
 class SinglePointVerticalProfile(base_chart.Chart):
+  """
+  In order to plot each series in the graph,
+  the following properties of a pandas.Series
+  are used as follows.
+
+  * index: used in the 'x' axis.
+  * values: used in the 'y' axis.
+  * names: used to label the current series.
+  """
   def __init__(
     self,
     series_data: list[pd.Series],

@@ -64,9 +64,9 @@ class TestHeatMap(unittest.TestCase):
         }
       print(f'-> Heatmap static image for "{variable}" variable.', file=sys.stderr)
       vis.build_static(
-        var=variable,
+        var_name=variable,
         title=f'{plot_titles[variable]} {target_date}',
-        label=plot_measure_label[variable],
+        var_label=plot_measure_label[variable],
         dim_constraints=dim_constraints,
         lat_dim_name='latitude',
         lon_dim_name='longitude',
@@ -104,9 +104,9 @@ class TestHeatMap(unittest.TestCase):
       if variable == 'zos':
         dim_constraints = {}
       vis.build_animation(
-        var=variable,
+        var_name=variable,
         title=plot_titles[variable],
-        label=plot_measure_label[variable],
+        var_label=plot_measure_label[variable],
         dim_constraints=dim_constraints,
         time_dim_name='time',
         lat_dim_name='latitude',
@@ -145,9 +145,9 @@ class TestContourMap(unittest.TestCase):
         }
       print(f'-> Contour map static image for "{variable}" variable.', file=sys.stderr)
       vis.build_static(
-        var=variable,
+        var_name=variable,
         title=f'{plot_titles[variable]} {target_date}',
-        label=plot_measure_label[variable],
+        var_label=plot_measure_label[variable],
         dim_constraints=dim_constraints,
         lat_dim_name='latitude',
         lon_dim_name='longitude',
@@ -187,9 +187,9 @@ class TestContourMap(unittest.TestCase):
       if variable == 'zos':
         dim_constraints = {}
       vis.build_animation(
-        var=variable,
+        var_name=variable,
         title=plot_titles[variable],
-        label=plot_measure_label[variable],
+        var_label=plot_measure_label[variable],
         dim_constraints=dim_constraints,
         time_dim_name='time',
         lat_dim_name='latitude',
@@ -235,7 +235,7 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         grouping_dim_name=None
       print(f'-> Static single-point time-series image for "{variable}" variable.', file=sys.stderr)
       vis.build_static(
-        var=variable,
+        var_name=variable,
         title=f'{plot_titles[variable]} time series',
         grouping_dim_label='Depth (m)',
         dim_constraints=dim_constraints,
@@ -243,8 +243,8 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         lon_dim_name='longitude',
         grouping_dim_name=grouping_dim_name,
         time_dim_name='time',
-        y_label=plot_measure_label[variable],
-        x_label='Dates'
+        var_label=plot_measure_label[variable],
+        time_dim_label='Dates'
       )
       print(f'-> Image built.', file=sys.stderr)
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'single-point-time-series-{plot_titles[variable]}'))
@@ -284,7 +284,7 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         grouping_dim_name=None
       print(f'-> Static single-point time-series image for "{variable}" variable.', file=sys.stderr)
       vis.build_static(
-        var=variable,
+        var_name=variable,
         title=f'{plot_titles[variable]} time series',
         grouping_dim_label='Depth (m)',
         dim_constraints=dim_constraints,
@@ -292,8 +292,8 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         lon_dim_name='longitude',
         grouping_dim_name=grouping_dim_name,
         time_dim_name='time',
-        y_label=plot_measure_label[variable],
-        x_label='Dates'
+        var_label=plot_measure_label[variable],
+        time_dim_label='Dates'
       )
       print(f'-> Image built.', file=sys.stderr)
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'one-depth-single-point-time-series-{plot_titles[variable]}'))
@@ -328,7 +328,7 @@ class TestSinglePointVerticalProfile(unittest.TestCase):
         continue
       print(f'-> Static single-point vertical profile image for "{variable}" variable.', file=sys.stderr)
       vis.build_static(
-        var=variable,
+        var_name=variable,
         title=f'{plot_titles[variable]} by depth',
         grouping_dim_label='Dates',
         dim_constraints=dim_constraints,
@@ -336,8 +336,8 @@ class TestSinglePointVerticalProfile(unittest.TestCase):
         lon_dim_name='longitude',
         grouping_dim_name=grouping_dim_name,
         y_dim_name='depth',
-        y_label='Depth',
-        x_label=plot_measure_label[variable]
+        y_dim_label='Depth',
+        var_label=plot_measure_label[variable]
       )
       print(f'-> Image built.', file=sys.stderr)
       vis.save(pathlib.Path(VISUALIZATIONS_DIR, f'single-point-vertical-profile-{plot_titles[variable]}'))
@@ -371,13 +371,13 @@ class TestVerticalSlice(unittest.TestCase):
         continue
       print(f'-> Static vertical slice for "{variable}" variable.', file=sys.stderr)
       vis.build_static(
-        var=variable,
+        var_name=variable,
         x_dim_name='latitude',
         y_dim_name='depth',
         lat_dim_name='latitude',
         lon_dim_name='longitude',
         title=f'{plot_titles[variable]} on {date}',
-        measure_label=plot_measure_label[variable],
+        var_label=plot_measure_label[variable],
         y_label='Depth (m)',
         x_label='Latitude (°)',
         dim_constraints=dim_constraints
@@ -413,13 +413,13 @@ class TestVerticalSlice(unittest.TestCase):
         continue
       print(f'-> Static vertical slice for "{variable}" variable.', file=sys.stderr)
       vis.build_static(
-        var=variable,
+        var_name=variable,
         x_dim_name='longitude',
         y_dim_name='depth',
         lat_dim_name='latitude',
         lon_dim_name='longitude',
         title=f'{plot_titles[variable]} on {date}',
-        measure_label=plot_measure_label[variable],
+        var_label=plot_measure_label[variable],
         y_label='Depth (m)',
         x_label='Longitude (°)',
         dim_constraints=dim_constraints
@@ -455,14 +455,14 @@ class TestVerticalSlice(unittest.TestCase):
         continue
       print(f'-> Animated vertical slice for "{variable}" variable.', file=sys.stderr)
       vis.build_animation(
-        var=variable,
+        var_name=variable,
         x_dim_name='latitude',
         y_dim_name='depth',
         time_dim_name='time',
         lat_dim_name='latitude',
         lon_dim_name='longitude',
         title=f'{plot_titles[variable]}',
-        measure_label=plot_measure_label[variable],
+        var_label=plot_measure_label[variable],
         y_label='Depth (m)',
         x_label='Latitude (°)',
         dim_constraints=dim_constraints,
@@ -500,14 +500,14 @@ class TestVerticalSlice(unittest.TestCase):
         continue
       print(f'-> Animated vertical slice for "{variable}" variable.', file=sys.stderr)
       vis.build_animation(
-        var=variable,
+        var_name=variable,
         x_dim_name='longitude',
         y_dim_name='depth',
         time_dim_name='time',
         lat_dim_name='latitude',
         lon_dim_name='longitude',
         title=f'{plot_titles[variable]}',
-        measure_label=plot_measure_label[variable],
+        var_label=plot_measure_label[variable],
         y_label='Depth (m)',
         x_label='Longitude (°)',
         dim_constraints=dim_constraints,
