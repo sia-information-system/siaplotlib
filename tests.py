@@ -9,6 +9,9 @@ import tools.general_utils as general_utils
 VISUALIZATIONS_DIR = pathlib.Path(pathlib.Path(__file__).parent.absolute(), 'tmp', 'visualizations')
 DATA_DIR = pathlib.Path(pathlib.Path(__file__).parent.absolute(), 'tmp', 'data')
 
+DATASET_1 = 'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-10h-31m-10s-857022ms.nc'
+DATASET_2 = 'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc'
+
 variables = ['thetao', 'vo', 'uo', 'so', 'zos']
 
 plot_titles = {
@@ -48,7 +51,7 @@ class TestHeatMap(unittest.TestCase):
     time_start = time.time()
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-10h-31m-10s-857022ms.nc')
+      DATASET_1)
     dataset = xr.open_dataset(dataset_path)
     vis = level_chart.HeatMapBuilder(dataset=dataset, verbose=True)
 
@@ -92,7 +95,7 @@ class TestHeatMap(unittest.TestCase):
 
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+      DATASET_2)
     dataset = xr.open_dataset(dataset_path)
     vis = level_chart.HeatMapBuilder(dataset=dataset, verbose=True)
 
@@ -129,7 +132,7 @@ class TestContourMap(unittest.TestCase):
     time_start = time.time()
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-10h-31m-10s-857022ms.nc')
+      DATASET_1)
     dataset = xr.open_dataset(dataset_path)
     vis = level_chart.ContourMapBuilder(dataset=dataset, verbose=True)
 
@@ -175,7 +178,7 @@ class TestContourMap(unittest.TestCase):
 
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+      DATASET_2)
     dataset = xr.open_dataset(dataset_path)
     vis = level_chart.ContourMapBuilder(dataset=dataset, verbose=True)
 
@@ -213,7 +216,7 @@ class TestSinglePointTimeSeries(unittest.TestCase):
     time_start = time.time()
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+      DATASET_2)
     dataset = xr.open_dataset(dataset_path)
     vis = line_chart.SinglePointTimeSeriesBuilder(dataset=dataset, verbose=True)
 
@@ -262,7 +265,7 @@ class TestSinglePointTimeSeries(unittest.TestCase):
     time_start = time.time()
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+      DATASET_2)
     dataset = xr.open_dataset(dataset_path)
     vis = line_chart.SinglePointTimeSeriesBuilder(dataset=dataset, verbose=True)
 
@@ -312,7 +315,7 @@ class TestSinglePointVerticalProfile(unittest.TestCase):
     time_start = time.time()
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+      DATASET_2)
     dataset = xr.open_dataset(dataset_path)
     vis = line_chart.SinglePointVerticalProfileBuilder(dataset=dataset, verbose=True)
 
@@ -356,7 +359,7 @@ class TestVerticalSlice(unittest.TestCase):
     time_start = time.time()
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+      DATASET_2)
     dataset = xr.open_dataset(dataset_path)
     vis = level_chart.VerticalSliceBuilder(dataset=dataset, verbose=True)
 
@@ -398,7 +401,7 @@ class TestVerticalSlice(unittest.TestCase):
     time_start = time.time()
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+      DATASET_2)
     dataset = xr.open_dataset(dataset_path)
     vis = level_chart.VerticalSliceBuilder(dataset=dataset, verbose=True)
 
@@ -440,7 +443,7 @@ class TestVerticalSlice(unittest.TestCase):
     time_start = time.time()
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+      DATASET_2)
     dataset = xr.open_dataset(dataset_path)
     vis = level_chart.VerticalSliceBuilder(dataset=dataset, verbose=True)
 
@@ -485,7 +488,7 @@ class TestVerticalSlice(unittest.TestCase):
     time_start = time.time()
     dataset_path = pathlib.Path(
       DATA_DIR,
-      'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc')
+      DATASET_2)
     dataset = xr.open_dataset(dataset_path)
     vis = level_chart.VerticalSliceBuilder(dataset=dataset, verbose=True)
 
