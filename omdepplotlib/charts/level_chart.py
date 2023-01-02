@@ -13,10 +13,11 @@ class HeatMap(base_chart.Chart):
 
   lon_interval is a list with [west coord, east coord]
   lat_interval is a list with [south coord, north coord]
+  data is a 2-D array with shape (length(lat_data), length(lon_data))
   """
   def __init__(
     self,
-    dataset: xr.DataArray, 
+    data: np.ndarray, 
     lon_interval: list,
     lat_interval: list,
     lon_data: np.ndarray,
@@ -24,23 +25,23 @@ class HeatMap(base_chart.Chart):
     vmin: float,
     vmax: float,
     title: str, 
-    label: str = None,
+    data_label: str = None,
     color_palette: str = 'viridis',
-    build_on_create: bool =True,
+    build_on_create: bool = True,
     verbose: bool = False
   ) -> None:
-    self.dataset = dataset
+    self.data = data
     self.title = title
     self.lon_interval = lon_interval
     self.lat_interval = lat_interval
     self.lon_data = lon_data
     self.lat_data = lat_data
-    self.label = label
+    self.data_label = data_label
     self.vmin = vmin
     self.vmax = vmax
     self.color_palette = color_palette
 
-    super().__init__(verbose = verbose)
+    super().__init__(verbose=verbose)
 
     if build_on_create:
       self.build()
@@ -64,14 +65,14 @@ class HeatMap(base_chart.Chart):
     im = ax.pcolor(
       self.lon_data,
       self.lat_data,
-      self.dataset,
+      self.data,
       vmin=self.vmin,
       vmax=self.vmax,
       cmap=self.color_palette)
 
     cbar = f.colorbar(im, ax=ax)
-    if self.label is not None:
-      cbar.set_label(self.label)
+    if self.data_label is not None:
+      cbar.set_label(self.data_label)
 
     self._fig = f
 
@@ -87,10 +88,11 @@ class ContourMap(base_chart.Chart):
 
   lon_interval is a list with [west coord, east coord]
   lat_interval is a list with [south coord, north coord]
+  data is a 2-D array with shape (length(lat_data), length(lon_data))
   """
   def __init__(
     self,
-    dataset: xr.DataArray, 
+    data: np.ndarray, 
     lon_interval: list,
     lat_interval: list,
     lon_data: np.ndarray,
@@ -99,19 +101,19 @@ class ContourMap(base_chart.Chart):
     vmax: float,
     num_levels: int,
     title: str, 
-    label: str = None,
+    data_label: str = None,
     color_palette: str = 'viridis', # Not in use.
     build_on_create: bool =True,
     verbose: bool = False
   ) -> None:
     super().__init__(verbose=verbose)
-    self.dataset = dataset
+    self.data = data
     self.title = title
     self.lon_interval = lon_interval
     self.lat_interval = lat_interval
     self.lon_data = lon_data
     self.lat_data = lat_data
-    self.label = label
+    self.data_label = data_label
     self.vmin = vmin
     self.vmax = vmax
     self.num_levels = num_levels
@@ -139,7 +141,7 @@ class ContourMap(base_chart.Chart):
 
     x = self.lon_data
     y = self.lat_data
-    z = self.dataset
+    z = self.data
 
     # Add colourful filled contours.
     filled_c = ax.contourf(
@@ -151,8 +153,8 @@ class ContourMap(base_chart.Chart):
 
     # Add a colorbar for the filled contour.
     cbar = fig.colorbar(filled_c, ax=ax)
-    if self.label is not None:
-      cbar.set_label(self.label)
+    if self.data_label is not None:
+      cbar.set_label(self.data_label)
 
     # And black line contours.
     line_c = ax.contour(
@@ -169,6 +171,12 @@ class ContourMap(base_chart.Chart):
     return self
 
 class VerticalSlice(base_chart.Chart):
+  """
+  Create a heat map chart.
+
+  lon_interval is a list with [west coord, east coord]
+  lat_interval is a list with [south coord, north coord]
+  """
   def __init__(
     self,
     x_values: np.ndarray,
@@ -179,7 +187,7 @@ class VerticalSlice(base_chart.Chart):
     lon_interval: list[float],
     lat_interval: list[float],
     title: str,
-    measure_label: str,
+    z_label: str,
     y_label: str,
     x_label: str = None,
     color_palette: str = 'plasma',
@@ -195,7 +203,7 @@ class VerticalSlice(base_chart.Chart):
     self.lon_interval = lon_interval
     self.lat_interval = lat_interval
     self.title = title
-    self.measure_label = measure_label
+    self.z_label = z_label
     self.y_label = y_label
     self.x_label = x_label
     self.color_palette = color_palette
@@ -221,7 +229,7 @@ class VerticalSlice(base_chart.Chart):
       vmax=self.vmax,
       cmap=self.color_palette)                                            # display the temperature
     cbar = f.colorbar(im,ax=ax)                                           # add the colorbar
-    cbar.set_label(self.measure_label)                                    # add the title of the colorbar
+    cbar.set_label(self.z_label)                                    # add the title of the colorbar
 
     # Display the locations of the line on a mini map
     ax_mini_map = f.add_axes([0.74, 0.97, 0.2, 0.2], projection=ccrs.PlateCarree())  # create the minimap and define its projection
@@ -234,3 +242,8 @@ class VerticalSlice(base_chart.Chart):
       crs=ccrs.PlateCarree())                                                        # define the extent of the map [lon_min,lon_max,lat_min,lat_max]
     ax_mini_map.plot(self.lon_interval,self.lat_interval,'r')                        # add the location of the line on the mini map
     self._fig = f
+
+    if self.verbose:
+      print(f'Image created.', file=sys.stderr)
+    
+    return self

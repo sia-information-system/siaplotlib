@@ -20,21 +20,21 @@ class SinglePointTimeSeriesBuilder(base_builder.ChartBuilder):
 
   def build_static(
     self, 
-    var: str,
+    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     time_dim_name: str,
     grouping_dim_name: str,
     title: str,
     grouping_dim_label: str,
-    y_label: str,
-    x_label: str = None,
+    var_label: str,
+    time_dim_label: str = None,
     dim_constraints: dict[str, list] = {},
   ):
     subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
-      var=var)
+      var=var_name)
     
     lon_data, lat_data, lon_interval, lat_interval = munging.get_coords(
       dataset=subset,
@@ -64,8 +64,8 @@ class SinglePointTimeSeriesBuilder(base_builder.ChartBuilder):
       lat_interval=lat_interval,
       title=title,
       grouping_var_label=grouping_dim_label,
-      y_label=y_label,
-      x_label=x_label,
+      y_label=var_label,
+      x_label=time_dim_label,
       show_series_names=show_series_names,
       verbose=self.verbose)
     
@@ -87,21 +87,21 @@ class SinglePointVerticalProfileBuilder(base_builder.ChartBuilder):
 
   def build_static(
     self, 
-    var: str,
+    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     y_dim_name: str,
     grouping_dim_name: str,
     title: str,
     grouping_dim_label: str,
-    y_label: str,
-    x_label: str = None,
+    y_dim_label: str,
+    var_label: str = None,
     dim_constraints: dict[str, list] = {},
   ):
     subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
-      var=var)
+      var=var_name)
     
     lon_data, lat_data, lon_interval, lat_interval = munging.get_coords(
       dataset=subset,
@@ -130,8 +130,8 @@ class SinglePointVerticalProfileBuilder(base_builder.ChartBuilder):
       lat_interval=lat_interval,
       title=title,
       grouping_var_label=grouping_dim_label,
-      y_label=y_label,
-      x_label=x_label,
+      y_label=y_dim_label,
+      x_label=var_label,
       show_series_names=show_series_names,
       verbose=self.verbose)
     

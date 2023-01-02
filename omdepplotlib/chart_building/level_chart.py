@@ -23,18 +23,18 @@ class HeatMapBuilder(base_builder.ChartBuilder):
 
   def build_static(
     self, 
-    var: str,
+    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     title: str,
     dim_constraints: dict = {},
-    label: str = None,
+    var_label: str = None,
     color_palette: str = None
   ):
     subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
-      var=var)
+      var=var_name)
     
     vmin = aggregation.min(
       dataset=subset,
@@ -50,8 +50,8 @@ class HeatMapBuilder(base_builder.ChartBuilder):
       lat_dim_name=lat_dim_name)
     
     self._chart = level_chart.HeatMap(
-      dataset=subset,
-      label=label,
+      data=subset.data,
+      data_label=var_label,
       title=title,
       lon_interval=lon_interval,
       lat_interval=lat_interval,
@@ -67,13 +67,13 @@ class HeatMapBuilder(base_builder.ChartBuilder):
 
   def build_animation(
     self,
-    var: str,
+    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     time_dim_name: str,
     title: str,
     dim_constraints: dict = {},
-    label: str = None,
+    var_label: str = None,
     color_palette: str = None,
     duration: int = 0.5,
     duration_unit: str = 'SECONDS_PER_FRAME'
@@ -81,7 +81,7 @@ class HeatMapBuilder(base_builder.ChartBuilder):
     subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
-      var=var)
+      var=var_name)
     
     vmin = aggregation.min(
       dataset=subset,
@@ -107,8 +107,8 @@ class HeatMapBuilder(base_builder.ChartBuilder):
       date = np.datetime_as_string(date_subset[time_dim_name].data, unit='D')
 
       chart = level_chart.HeatMap(
-        dataset=date_subset,
-        label=label,
+        data=date_subset.data,
+        data_label=var_label,
         title=f'{title} {date}',
         lon_interval=lon_interval,
         lat_interval=lat_interval,
@@ -133,11 +133,11 @@ class HeatMapBuilder(base_builder.ChartBuilder):
 
     self._chart = raw_image.ChartImage(
       img_source=img_buff,
-      var=var, 
+      var_name=var_name, 
       title=title, 
       lon_interval=lon_interval, 
       lat_interval=lat_interval,
-      label=label)
+      var_label=var_label)
     
     return self
 
@@ -154,19 +154,19 @@ class ContourMapBuilder(base_builder.ChartBuilder):
   
   def build_static(
     self,
-    var: str,
+    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     num_levels: int,
     title: str,
     dim_constraints: dict = {},
-    label: str = None,
+    var_label: str = None,
     color_palette: str = None
   ):
     subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
-      var=var)
+      var=var_name)
     
     vmin = aggregation.min(
       dataset=subset,
@@ -182,8 +182,8 @@ class ContourMapBuilder(base_builder.ChartBuilder):
       lat_dim_name=lat_dim_name)
     
     self._chart = level_chart.ContourMap(
-      dataset=subset,
-      label=label,
+      data=subset.data,
+      data_label=var_label,
       title=title,
       lon_interval=lon_interval,
       lat_interval=lat_interval,
@@ -200,14 +200,14 @@ class ContourMapBuilder(base_builder.ChartBuilder):
 
   def build_animation(
     self,
-    var: str,
+    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     time_dim_name: str,
     num_levels: int,
     title: str,
     dim_constraints: dict = {},
-    label: str = None,
+    var_label: str = None,
     color_palette: str = None,
     duration: int = 0.5,
     duration_unit: str = 'SECONDS_PER_FRAME'
@@ -215,7 +215,7 @@ class ContourMapBuilder(base_builder.ChartBuilder):
     subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
-      var=var)
+      var=var_name)
     
     vmin = aggregation.min(
       dataset=subset,
@@ -241,8 +241,8 @@ class ContourMapBuilder(base_builder.ChartBuilder):
       date = np.datetime_as_string(date_subset[time_dim_name].data, unit='D')
 
       chart = level_chart.ContourMap(
-        dataset=date_subset,
-        label=label,
+        data=date_subset.data,
+        data_label=var_label,
         title=f'{title} {date}',
         lon_interval=lon_interval,
         lat_interval=lat_interval,
@@ -268,11 +268,11 @@ class ContourMapBuilder(base_builder.ChartBuilder):
 
     self._chart = raw_image.ChartImage(
       img_source=img_buff,
-      var=var, 
+      var_name=var_name, 
       title=title, 
       lon_interval=lon_interval, 
       lat_interval=lat_interval,
-      label=label,
+      var_label=var_label,
       verbose=self.verbose)
     
     return self
@@ -293,13 +293,13 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
 
   def build_static(
     self, 
-    var: str,
+    var_name: str,
     x_dim_name: str,
     y_dim_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     title: str,
-    measure_label: str,
+    var_label: str,
     y_label: str,
     x_label: str,
     dim_constraints: dict = {},
@@ -308,7 +308,7 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
     subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
-      var=var)
+      var=var_name)
     
     vmin = aggregation.min(
       dataset=subset,
@@ -353,10 +353,11 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
       lon_interval=lon_interval,
       lat_interval=lat_interval,
       title=title,
-      measure_label=measure_label,
+      z_label=var_label,
       y_label=y_label,
       x_label=x_label,
-      color_palette=color_palette
+      color_palette=color_palette,
+      verbose=self.verbose
     )
     
     return self
@@ -364,14 +365,14 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
 
   def build_animation(
     self,
-    var: str,
+    var_name: str,
     x_dim_name: str,
     y_dim_name: str,
     time_dim_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     title: str,
-    measure_label: str,
+    var_label: str,
     y_label: str,
     x_label: str,
     dim_constraints: dict = {},
@@ -382,7 +383,7 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
     subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints,
-      var=var)
+      var=var_name)
     
     vmin = aggregation.min(
       dataset=subset,
@@ -435,10 +436,11 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
         lon_interval=lon_interval,
         lat_interval=lat_interval,
         title=f'{title} - {date}',
-        measure_label=measure_label,
+        z_label=var_label,
         y_label=y_label,
         x_label=x_label,
-        color_palette=color_palette
+        color_palette=color_palette,
+        verbose=self.verbose
       )
       
       chart_list.append(chart)
@@ -455,11 +457,11 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
 
     self._chart = raw_image.ChartImage(
       img_source=img_buff,
-      var=var, 
+      var_name=var_name, 
       title=title, 
       lon_interval=lon_interval, 
       lat_interval=lat_interval,
-      label=measure_label,
+      var_label=var_label,
       verbose=self.verbose)
     
     return self
