@@ -1,7 +1,0 @@
-numpy>=1.23.4
-pandas>=1.5.1
-xarray>=2022.11.0
-netcdf4>=1.6.1
-matplotlib>=3.6.2
-pillow>=9.3.0
-cartopy>=0.21.1

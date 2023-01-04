@@ -3,8 +3,11 @@
 .venv
 venv
 tmp
+
+# Build result
 dist
 build
+omdepplotlib.egg-info
 
 # Configuration files
 etc/config.ini
