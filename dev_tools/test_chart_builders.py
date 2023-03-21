@@ -43,6 +43,52 @@ palette_colors = {
 }
 
 # Test definitions.
+class TestWindRose(unittest.TestCase):
+  def test_images(self):
+    print('\n--- Starting windrose static images test. ---',
+      file=sys.stderr)
+    time_start = time.time()
+    dataset_path = pathlib.Path(
+      DATA_DIR,
+      DATASET_NAME_1)
+    dataset = xr.open_dataset(dataset_path)
+    chart_builder = level_chart.WindRoseBuilder(
+      dataset=dataset,
+      verbose=True)
+    
+    target_date = '2022-10-11'
+    depth = 0
+
+    dim_constraints = {
+        'time': [target_date],
+        'depth': [0],
+        'latitude': slice(15, 20),
+        'longitude': slice(-85, 82)
+      }
+    
+    lat = [15,20]
+    lon = [-85,-82]
+
+    chart_builder.build_static(
+        var_ew = 'uo',
+        var_nw = 'vo',
+        title = f'Windrose del {target_date}\nCoordenadas\n lat: {lat} y lon: {lon}\n Depth: {depth}',
+        color_palette = 'viridis',
+        dim_constraints= dim_constraints,
+      )
+    
+    print(f'-> Image built.', file=sys.stderr)
+    chart_builder.save(
+      pathlib.Path(
+      VISUALIZATIONS_DIR,
+      f'windrose-test'))
+    print(f'-> Image saved', file=sys.stderr)
+
+    print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
+    print('Finishing test.', file=sys.stderr)
+    time_end = time.time()
+    print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
+    self.assertTrue(True)
 
 class TestHeatMap(unittest.TestCase):
   def test_images(self):

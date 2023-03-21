@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from omdepplotlib.charts import base_chart
 import xarray as xr
 import numpy as np
+import matplotlib.cm as cm
+from windrose import WindroseAxes
 
 
 class HeatMap(base_chart.Chart):
@@ -242,6 +244,46 @@ class VerticalSlice(base_chart.Chart):
       crs=ccrs.PlateCarree())                                                        # define the extent of the map [lon_min,lon_max,lat_min,lat_max]
     ax_mini_map.plot(self.lon_interval,self.lat_interval,'r')                        # add the location of the line on the mini map
     self._fig = f
+
+    if self.verbose:
+      print(f'Image created.', file=sys.stderr)
+    
+    return self
+
+class WindRose(base_chart.Chart):
+  """
+  Create a WindRose.
+  """
+  def __init__(
+    self,
+    speed: np.ndarray, 
+    direction: np.ndarray,
+    title: str, 
+    color_palette: str = 'viridis',
+    build_on_create: bool = True,
+    verbose: bool = False
+  ) -> None:
+    self.speed = speed
+    self.direction = direction
+    self.title = title
+    self.color_palette = color_palette
+
+    super().__init__(verbose=verbose)
+
+    if build_on_create:
+      self.build()
+
+
+  def build(self):
+    self.close()
+    
+    ax = WindroseAxes.from_ax()
+    ax.bar(self.direction,self.speed, normed=True, opening=1, edgecolor='white',cmap=getattr(cm, self.color_palette))
+    ax.set_yticklabels(ax.get_yticklabels(), color='r',fontsize=12)
+    ax.set_title(self.title,fontsize = 15)
+    ax.set_legend()
+
+    self._fig = ax.figure
 
     if self.verbose:
       print(f'Image created.', file=sys.stderr)

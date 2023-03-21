@@ -6,6 +6,7 @@ from omdepplotlib.charts import raw_image
 from omdepplotlib.preprocessing import munging
 from omdepplotlib.preprocessing import aggregation
 from omdepplotlib.chart_building import base_builder
+from omdepplotlib.preprocessing import computations
 
 
 class HeatMapBuilder(base_builder.ChartBuilder):
@@ -463,5 +464,54 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
       lat_interval=lat_interval,
       var_label=var_label,
       verbose=self.verbose)
+    
+    return self
+
+class WindRoseBuilder(base_builder.ChartBuilder):
+  # Public methods.
+  def __init__(
+    self,
+    dataset: xr.DataArray,
+    
+    verbose: bool = False
+  ) -> None:
+    super().__init__(
+      dataset=dataset,
+      verbose=verbose)
+
+  def build_static(
+    self, 
+    var_ew: str,
+    var_nw: str,
+    title: str,
+    dim_constraints: dict = {},
+    color_palette: str = None
+  ):
+    
+    subset = munging.slice_dice(
+      dataset=self.dataset,
+      dim_constraints=dim_constraints,
+      var=None, )
+    
+    speed = computations.calc_spd(
+      dataset= subset,
+      var_ew = var_ew,
+      var_nw = var_nw)
+    
+    direction = computations.calc_dir(
+    dataset = subset,
+    var_ew = var_ew,
+    var_nw = var_nw)
+
+    directionUp = computations.corr_cord(dataset = direction) 
+    directionUp = computations.drop_nan(dataset=directionUp)
+    speed = computations.drop_nan(dataset=speed)
+  
+    self._chart = level_chart.WindRose(
+      speed=speed,
+      direction=directionUp,
+      verbose=self.verbose,
+      title=title,
+      color_palette=color_palette)
     
     return self
