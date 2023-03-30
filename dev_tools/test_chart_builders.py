@@ -3,6 +3,7 @@ import sys
 import unittest
 import time
 import xarray as xr
+import numpy as np
 from omdepplotlib.chart_building import level_chart, line_chart
 from lib_utils.general_utils import VISUALIZATIONS_DIR, DATA_DIR
 import lib_utils.general_utils as general_utils
@@ -43,6 +44,57 @@ palette_colors = {
 }
 
 # Test definitions.
+# Test definitions.
+class TestArrowChart(unittest.TestCase):
+  def test_images(self):
+    print('\n--- Starting ArrowChart static images test. ---',
+      file=sys.stderr)
+    time_start = time.time()
+    dataset_path = pathlib.Path(
+      DATA_DIR,
+      DATASET_NAME_1)
+    dataset = xr.open_dataset(dataset_path)
+    chart_builder = level_chart.ArrowChartBuilder(
+      dataset=dataset,
+      verbose=True)
+    
+    # Conglomeracion de flechas
+    stride = 4
+    target_date = '2022-10-11'
+    depth = 0
+
+    dim_constraints = {
+        'time': [target_date],
+        'depth': depth,
+      }
+    
+    #lat = [dim_constraints['latitude'].start,dim_constraints['latitude'].stop]
+    #lon = [dim_constraints['longitude'].start,dim_constraints['longitude'].stop]
+
+    chart_builder.build_static(
+        var_ew = 'uo',
+        var_nw = 'vo',
+        var_lon = 'longitude',
+        var_lat = 'latitude',
+        title = 'ArrowChart',
+        dim_constraints= dim_constraints,
+        stride = stride
+      )
+    
+    
+    print(f'-> Image built.', file=sys.stderr)
+    chart_builder.save(
+      pathlib.Path(
+      VISUALIZATIONS_DIR,
+      f'ArrowChart-test'))
+    print(f'-> Image saved', file=sys.stderr)
+
+    print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
+    print('Finishing test.', file=sys.stderr)
+    time_end = time.time()
+    print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
+    self.assertTrue(True)
+
 class TestWindRose(unittest.TestCase):
   def test_images(self):
     print('\n--- Starting windrose static images test. ---',
@@ -56,26 +108,33 @@ class TestWindRose(unittest.TestCase):
       dataset=dataset,
       verbose=True)
     
+    #min,max,jumps
+    bin_range = np.arange(0,1,.2) #Si falla, reduce el primer valor.
+    #default value (16)
+    nsector = 16
     target_date = '2022-10-11'
     depth = 0
 
     dim_constraints = {
         'time': [target_date],
-        'depth': [0],
+        'depth': depth,
         'latitude': slice(15, 20),
         'longitude': slice(-85, 82)
       }
     
-    lat = [15,20]
-    lon = [-85,-82]
+    #lat = [dim_constraints['latitude'].start,dim_constraints['latitude'].stop]
+    #lon = [dim_constraints['longitude'].start,dim_constraints['longitude'].stop]
 
     chart_builder.build_static(
         var_ew = 'uo',
         var_nw = 'vo',
-        title = f'Windrose del {target_date}\nCoordenadas\n lat: {lat} y lon: {lon}\n Depth: {depth}',
+        title = f'Windrose del {target_date}\n Depth: {depth}',
         color_palette = 'viridis',
         dim_constraints= dim_constraints,
+        bin_range = bin_range,
+        nsector = nsector
       )
+    
     
     print(f'-> Image built.', file=sys.stderr)
     chart_builder.save(
@@ -89,6 +148,7 @@ class TestWindRose(unittest.TestCase):
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
     self.assertTrue(True)
+
 
 class TestHeatMap(unittest.TestCase):
   def test_images(self):
@@ -638,3 +698,4 @@ class TestVerticalSlice(unittest.TestCase):
 if __name__ == '__main__':
   general_utils.mkdir_r(VISUALIZATIONS_DIR)
   unittest.main()
+

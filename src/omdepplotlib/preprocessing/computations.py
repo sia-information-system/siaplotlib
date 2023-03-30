@@ -17,6 +17,22 @@ def calc_dir(
     F = (90-(np.arctan2(dataset[var_ew], dataset[var_nw]) * (180 / np.pi)))
     return F.values
 
+def calc_uniqueDir(
+    dataset: xr.DataArray,
+    var_ew: str,
+    var_nw:str
+    ) -> tuple[np.ndarray, np.ndarray] :
+    
+    speed = calc_spd(dataset= dataset,
+      var_ew = var_ew,
+      var_nw = var_nw)
+    
+    direction = calc_dir(dataset= dataset,
+      var_ew = var_ew,
+      var_nw = var_nw)
+    
+    return speed, direction
+
 def corr_cord(
     dataset: np.ndarray 
     ) -> np.ndarray :

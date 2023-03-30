@@ -472,7 +472,6 @@ class WindRoseBuilder(base_builder.ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
-    
     verbose: bool = False
   ) -> None:
     super().__init__(
@@ -484,24 +483,19 @@ class WindRoseBuilder(base_builder.ChartBuilder):
     var_ew: str,
     var_nw: str,
     title: str,
+    bin_range: np.ndarray,
+    nsector: int,
     dim_constraints: dict = {},
     color_palette: str = None
   ):
     
     subset = munging.slice_dice(
       dataset=self.dataset,
-      dim_constraints=dim_constraints,
-      var=None, )
-    
-    speed = computations.calc_spd(
+      dim_constraints=dim_constraints)
+    speed, direction = computations.calc_uniqueDir(
       dataset= subset,
       var_ew = var_ew,
       var_nw = var_nw)
-    
-    direction = computations.calc_dir(
-    dataset = subset,
-    var_ew = var_ew,
-    var_nw = var_nw)
 
     directionUp = computations.corr_cord(dataset = direction) 
     directionUp = computations.drop_nan(dataset=directionUp)
@@ -512,6 +506,47 @@ class WindRoseBuilder(base_builder.ChartBuilder):
       direction=directionUp,
       verbose=self.verbose,
       title=title,
+      bin_range = bin_range,
+      nsector = nsector,
       color_palette=color_palette)
+    
+    return self
+  
+class ArrowChartBuilder(base_builder.ChartBuilder):
+  # Public methods.
+  def __init__(
+    self,
+    dataset: xr.DataArray,
+    verbose: bool = False
+  ) -> None:
+    super().__init__(
+      dataset=dataset,
+      verbose=verbose)
+
+  def build_static(
+    self, 
+    stride : int,
+    var_ew: str,
+    var_nw: str,
+    var_lon: str,
+    var_lat: str,
+    title: str,
+    dim_constraints: dict = {}
+  ):
+    
+    subset = munging.slice_dice(
+      dataset=self.dataset,
+      dim_constraints=dim_constraints)
+    
+
+    self._chart = level_chart.ArrowChart(
+      data = subset,
+      verbose=self.verbose,
+      title=title,
+      stride = stride,
+      var_ew = var_ew,
+      var_nw = var_nw,
+      var_lon = var_lon,
+      var_lat = var_lat)
     
     return self

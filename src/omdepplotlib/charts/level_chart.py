@@ -259,6 +259,8 @@ class WindRose(base_chart.Chart):
     speed: np.ndarray, 
     direction: np.ndarray,
     title: str, 
+    bin_range = np.ndarray,
+    nsector = int,
     color_palette: str = 'viridis',
     build_on_create: bool = True,
     verbose: bool = False
@@ -267,6 +269,8 @@ class WindRose(base_chart.Chart):
     self.direction = direction
     self.title = title
     self.color_palette = color_palette
+    self.bin_range = bin_range
+    self.nsector = nsector
 
     super().__init__(verbose=verbose)
 
@@ -278,7 +282,9 @@ class WindRose(base_chart.Chart):
     self.close()
     
     ax = WindroseAxes.from_ax()
-    ax.bar(self.direction,self.speed, normed=True, opening=1, edgecolor='white',cmap=getattr(cm, self.color_palette))
+    ax.bar(self.direction,self.speed, normed=True, opening=1, 
+           edgecolor='white', cmap=getattr(cm, self.color_palette),
+           bins=self.bin_range, nsector = self.nsector)
     ax.set_yticklabels(ax.get_yticklabels(), color='r',fontsize=12)
     ax.set_title(self.title,fontsize = 15)
     ax.set_legend()
@@ -289,3 +295,61 @@ class WindRose(base_chart.Chart):
       print(f'Image created.', file=sys.stderr)
     
     return self
+
+
+class ArrowChart(base_chart.Chart):
+  """
+  Create a ArrowChart.
+  """
+  def __init__(
+    self,
+    data : xr.DataArray,
+    title: str, 
+    stride: int,
+    var_ew: str,
+    var_nw: str,
+    var_lon: str,
+    var_lat: str,
+    verbose: bool = False,
+    build_on_create: bool = True,
+  ) -> None:
+    self.data = data
+    self.title = title
+    self.stride = stride 
+    self.var_ew = var_ew
+    self.var_nw = var_nw
+    self.var_lon = var_lon
+    self.var_lat = var_lat
+
+    super().__init__(verbose=verbose)
+
+    if build_on_create:
+      self.build()
+
+
+  def build(self):
+    self.close()
+    
+    vo = self.data[self.var_nw]
+    uo = self.data[self.var_ew]
+
+    fig = plt.figure(figsize=(20, 12))
+    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+
+    lon = self.data[self.var_lon][::self.stride]
+    lat = self.data[self.var_lat][::self.stride]
+
+    ax.quiver(lon,lat, uo[::self.stride,::self.stride], vo[::self.stride,::self.stride], transform=ccrs.PlateCarree(), color='black', pivot='tail')
+
+    ax.coastlines()
+    ax.set_xlabel('Longitude')
+    ax.set_ylabel('Latitude')
+    plt.title(self.title)
+    self._fig = ax.figure
+
+    if self.verbose:
+      print(f'Image created.', file=sys.stderr)
+    
+    return self
+
+
