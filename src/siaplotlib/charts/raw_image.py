@@ -1,28 +1,35 @@
 import io
 import sys
 import pathlib
-import omdepplotlib.charts.interfaces as chart_interfaces
+import siaplotlib.charts.interfaces as chart_interfaces
+from siaplotlib.utils.log import LoggingFeatures
 
 
-class RawImage(chart_interfaces.ChartInterface):
+class RawImage(chart_interfaces.ChartInterface, LoggingFeatures):
   def __init__(
     self,
     img_source,
+    log_stream = sys.stderr,
     verbose: bool = False
   ) -> None:
-    self.__img_buff = None
-    self.__img_path = None
-    self.verbose = verbose
+    LoggingFeatures.__init__(self, log_stream=log_stream, verbose=verbose)
+    self._img_buff = None
+    self._img_path = None
     if type(img_source) is io.BytesIO:
-      self.__img_buff = img_source
-      print('Setting image buffer', file=sys.stderr)
+      self._img_buff = img_source
+      self.log('Setting image buffer')
     else:
       # Read from disk
-      print('Buffer not set', file=sys.stderr)
+      self.log('Buffer not set')
   
 
   def get_buffer(self):
-    return self.__img_buff
+    return self._img_buff
+  
+
+  def close(self) -> None:
+    self.log('Dropping image buffer reference.')
+    self._img_buff = None
   
 
   def save(
@@ -31,8 +38,7 @@ class RawImage(chart_interfaces.ChartInterface):
   ) -> None:
     with open(filepath, "wb") as f:
       f.write(self.get_buffer().getbuffer())
-      if self.verbose:
-        print(f'Image saved in: {filepath}', file=sys.stderr)
+      self.log(f'Image saved in: {filepath}')
 
 
 class ChartImage(RawImage):
@@ -44,10 +50,12 @@ class ChartImage(RawImage):
     lon_interval=[], 
     lat_interval=[],
     var_label=None,
+    log_stream = sys.stderr,
     verbose=False
   ) -> None:
     super().__init__(
       img_source=img_source,
+      log_stream=log_stream,
       verbose=verbose)
     self.var_name = var_name
     self.title = title

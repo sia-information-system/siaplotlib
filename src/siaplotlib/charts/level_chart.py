@@ -2,7 +2,7 @@ import sys
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
-from omdepplotlib.charts import base_chart
+from siaplotlib.charts import base_chart
 import xarray as xr
 import numpy as np
 
@@ -28,8 +28,10 @@ class HeatMap(base_chart.Chart):
     data_label: str = None,
     color_palette: str = 'viridis',
     build_on_create: bool = True,
+    log_stream = sys.stderr,
     verbose: bool = False
   ) -> None:
+    super().__init__(log_stream=log_stream, verbose=verbose)
     self.data = data
     self.title = title
     self.lon_interval = lon_interval
@@ -40,8 +42,6 @@ class HeatMap(base_chart.Chart):
     self.vmin = vmin
     self.vmax = vmax
     self.color_palette = color_palette
-
-    super().__init__(verbose=verbose)
 
     if build_on_create:
       self.build()
@@ -76,8 +76,7 @@ class HeatMap(base_chart.Chart):
 
     self._fig = f
 
-    if self.verbose:
-      print(f'Image created.', file=sys.stderr)
+    self.log('Image created.')
     
     return self
 
@@ -104,9 +103,10 @@ class ContourMap(base_chart.Chart):
     data_label: str = None,
     color_palette: str = 'viridis', # Not in use.
     build_on_create: bool =True,
+    log_stream = sys.stderr,
     verbose: bool = False
   ) -> None:
-    super().__init__(verbose=verbose)
+    super().__init__(log_stream=log_stream, verbose=verbose)
     self.data = data
     self.title = title
     self.lon_interval = lon_interval
@@ -165,8 +165,7 @@ class ContourMap(base_chart.Chart):
     
     self._fig = fig
 
-    if self.verbose:
-      print(f'Image created.', file=sys.stderr)
+    self.log('Image created.')
     
     return self
 
@@ -192,9 +191,10 @@ class VerticalSlice(base_chart.Chart):
     x_label: str = None,
     color_palette: str = 'plasma',
     build_on_create: bool = True,
+    log_stream = sys.stderr,
     verbose=False
   ) -> None:
-    super().__init__(verbose=verbose)
+    super().__init__(log_stream=log_stream, verbose=verbose)
     self.x_values = x_values
     self.y_values = y_values
     self.z_values = z_values
@@ -243,7 +243,6 @@ class VerticalSlice(base_chart.Chart):
     ax_mini_map.plot(self.lon_interval,self.lat_interval,'r')                        # add the location of the line on the mini map
     self._fig = f
 
-    if self.verbose:
-      print(f'Image created.', file=sys.stderr)
+    self.log('Image created.')
     
     return self

@@ -1,21 +1,27 @@
-import omdepplotlib.charts.interfaces as chart_interfaces
-import matplotlib.pyplot as plt
+# Standard
 import sys
 import io
 import pathlib
+# Third party
+import matplotlib.pyplot as plt
+# Own
+from siaplotlib.charts.interfaces import ChartInterface
+from siaplotlib.utils.log import LoggingFeatures
 
 
-class Chart(chart_interfaces.ChartInterface):
+class Chart(ChartInterface, LoggingFeatures):
   def __init__(
     self,
     fig = None,
     fig_path = None,
+    log_stream = sys.stderr,
     verbose = False
   ) -> None:
+    # Super classes
+    LoggingFeatures.__init__(self, log_stream=log_stream, verbose=verbose)
+    # Own members.
     self._fig = fig
     self._fig_path = fig_path
-    self.verbose = verbose
-    pass
 
 
   def plot(self) -> None:
@@ -35,14 +41,12 @@ class Chart(chart_interfaces.ChartInterface):
   
     self._fig.savefig(filepath, dpi=100, bbox_inches='tight')
     self._fig_path = filepath
-    if self.verbose:
-      print(f'Image saved in: {filepath}', file=sys.stderr)
+    self.log(f'Image saved in: {filepath}')
   
 
   def close(self) -> None:
     if self._fig is not None:
-      if self.verbose:
-        print('Closing pyplot figure.', file=sys.stderr)
+      self.log('Closing pyplot figure.')
       plt.close(self._fig)
       self._fig = None
   
@@ -51,3 +55,8 @@ class Chart(chart_interfaces.ChartInterface):
     img_buff = io.BytesIO()
     self._fig.savefig(img_buff, dpi=100, bbox_inches='tight')
     return img_buff
+  
+
+  def __del__(self):
+    self.log('Free chart.')
+    self.close()

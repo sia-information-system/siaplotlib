@@ -5,11 +5,11 @@ requires      = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "omdepplotlib"
+name = "siaplotlib"
 version = "0.1.0"
-description = "Provide an easy to use interface for plotting oceanic and meteorological data."
+description = "Provide an easy to use interface for plotting oceanic data."
 readme = "README.md"
-authors = [{ name = "OMDEP", email = "180300337@ucaribe.edu.mx" }]
+authors = [{ name = "SIA", email = "180300337@ucaribe.edu.mx" }]
 keywords = ["cartopy", "gis", "cartography", "oceanographic", "oceanic", "visualization"]
 dependencies = [
   "numpy >= 1.23.4",
