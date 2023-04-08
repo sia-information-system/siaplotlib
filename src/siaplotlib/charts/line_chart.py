@@ -1,8 +1,13 @@
-from omdepplotlib.charts import base_chart
+# Standard
+import sys
+# Third party
 import matplotlib.pyplot as plt
 import pandas as pd
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+# Own
+from siaplotlib.charts import base_chart
+
 
 class SinglePointTimeSeries(base_chart.Chart):
   """
@@ -27,9 +32,10 @@ class SinglePointTimeSeries(base_chart.Chart):
     x_label: str = None,
     show_series_names: bool = True,
     build_on_create: bool = True,
+    log_stream = sys.stderr,
     verbose: bool = False
   ) -> None:
-    super().__init__(verbose=verbose)
+    super().__init__(log_stream=log_stream, verbose=verbose)
     self.series_data = series_data
     self.lon = lon
     self.lat = lat
@@ -107,9 +113,10 @@ class SinglePointVerticalProfile(base_chart.Chart):
     x_label: str = None,
     show_series_names: bool = True,
     build_on_create: bool = True,
+    log_stream = sys.stderr,
     verbose: bool = False
   ) -> None:
-    super().__init__(verbose=verbose)
+    super().__init__(log_stream=log_stream, verbose=verbose)
     self.series_data = series_data
     self.lon = lon
     self.lat = lat

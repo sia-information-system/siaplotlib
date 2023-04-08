@@ -1,16 +1,25 @@
+# Standard
 import pathlib
 import sys
 import unittest
 import time
+# Third party
 import xarray as xr
-from omdepplotlib.chart_building import level_chart, line_chart
+# Own
+from siaplotlib.chart_building import level_chart, line_chart
+from siaplotlib.chart_building.base_builder import ChartBuilder
+from siaplotlib.utils.log import LogStream
+# For testing
 from lib_utils.general_utils import VISUALIZATIONS_DIR, DATA_DIR
 import lib_utils.general_utils as general_utils
+
+log_stream = LogStream(callback= lambda s: print(s, end=''))
 
 # Setup
 
 DATASET_NAME_1 = 'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-10h-31m-10s-857022ms.nc'
 DATASET_NAME_2 = 'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc'
+general_utils.mkdir_r(VISUALIZATIONS_DIR)
 
 variables = ['thetao', 'vo', 'uo', 'so', 'zos']
 plot_titles = {
@@ -42,9 +51,29 @@ palette_colors = {
     'zos': 'viridis'
 }
 
-# Test definitions.
 
-class TestHeatMap(unittest.TestCase):
+class ChartBuilderTestCase(unittest.TestCase):
+  def __init__(self, methodName: str = "runTest") -> None:
+    super().__init__(methodName)
+    self.chart_filepath: pathlib.Path | str = '__filepath__'
+
+  def success_build_callback(self, chart_builder: ChartBuilder):
+    print(f'-> Image built.', file=sys.stderr)
+    chart_builder.save(self.chart_filepath)
+    print(f'-> Image saved', file=sys.stderr)
+    chart_builder.close()
+    # del chart_builder
+
+
+  def failure_build_callback(self, err: BaseException):
+    print('--- An error ocurr while building the chart. ---', file=sys.stderr)
+    print(err, file=sys.stderr)
+    self.assertTrue(False)
+
+
+# Test definitions.
+# TODO: Implement the log stream system.
+class TestHeatMap(ChartBuilderTestCase):
   def test_images(self):
     print('\n--- Starting heatmap static images test. ---',
       file=sys.stderr)
@@ -53,9 +82,6 @@ class TestHeatMap(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_1)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = level_chart.HeatMapBuilder(
-      dataset=dataset,
-      verbose=True)
 
     target_date = '2022-10-11'
     for variable in variables:
@@ -69,21 +95,20 @@ class TestHeatMap(unittest.TestCase):
         }
       print(f'-> Heatmap static image for "{variable}" variable.',
         file=sys.stderr)
-      chart_builder.build_static(
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR, f'heatmap-{plot_titles[variable]}')
+      chart_builder = level_chart.StaticHeatMapBuilder(
+        dataset=dataset,
         var_name=variable,
         title=f'{plot_titles[variable]} {target_date}',
         var_label=plot_measure_label[variable],
         dim_constraints=dim_constraints,
         lat_dim_name='latitude',
         lon_dim_name='longitude',
-        color_palette=palette_colors[variable]
-      )
-      print(f'-> Image built.', file=sys.stderr)
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'heatmap-{plot_titles[variable]}'))
-      print(f'-> Image saved', file=sys.stderr)
+        color_palette=palette_colors[variable],
+        log_stream=log_stream,
+        verbose=True)
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait() # Awaits untill the .build() async call ends.
     
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
@@ -99,9 +124,6 @@ class TestHeatMap(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = level_chart.HeatMapBuilder(
-      dataset=dataset,
-      verbose=True)
 
     for variable in variables:
       print(f'-> Heatmap gif for "{variable}" variable.',
@@ -111,7 +133,8 @@ class TestHeatMap(unittest.TestCase):
       }
       if variable == 'zos':
         dim_constraints = {}
-      chart_builder.build_animation(
+      chart_builder = level_chart.AnimatedHeatMapBuilder(
+        dataset=dataset,
         var_name=variable,
         title=plot_titles[variable],
         var_label=plot_measure_label[variable],
@@ -121,12 +144,13 @@ class TestHeatMap(unittest.TestCase):
         lon_dim_name='longitude',
         duration=5,
         duration_unit='FRAMES_PER_SECOND',
-        color_palette=palette_colors[variable])
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'heatmap-{plot_titles[variable]}-ANIMATION.gif'))
-    
+        color_palette=palette_colors[variable],
+        verbose=True)
+      
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR,f'heatmap-{plot_titles[variable]}-ANIMATION.gif')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait() # Awaits untill the .build() async call ends.
+
     print(f'Gifs stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
@@ -134,7 +158,7 @@ class TestHeatMap(unittest.TestCase):
     self.assertTrue(True)
 
 
-class TestContourMap(unittest.TestCase):
+class TestContourMap(ChartBuilderTestCase):
   def test_images(self):
     print('\n--- Starting contour map static images test. ---', file=sys.stderr)
     time_start = time.time()
@@ -142,9 +166,6 @@ class TestContourMap(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_1)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = level_chart.ContourMapBuilder(
-      dataset=dataset,
-      verbose=True)
 
     target_date = '2022-10-11'
     for variable in variables:
@@ -158,7 +179,8 @@ class TestContourMap(unittest.TestCase):
         }
       print(f'-> Contour map static image for "{variable}" variable.',
         file=sys.stderr)
-      chart_builder.build_static(
+      chart_builder = level_chart.StaticContourMapBuilder(
+        dataset=dataset,
         var_name=variable,
         title=f'{plot_titles[variable]} {target_date}',
         var_label=plot_measure_label[variable],
@@ -166,14 +188,11 @@ class TestContourMap(unittest.TestCase):
         lat_dim_name='latitude',
         lon_dim_name='longitude',
         color_palette=palette_colors[variable],
-        num_levels=9
-      )
-      print(f'-> Image built.', file=sys.stderr)
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'contourmap-{plot_titles[variable]}'))
-      print(f'-> Image saved', file=sys.stderr)
+        num_levels=9,
+        verbose=True)
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR, f'contourmap-{plot_titles[variable]}')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait()
     
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
@@ -190,9 +209,6 @@ class TestContourMap(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = level_chart.ContourMapBuilder(
-      dataset=dataset,
-      verbose=True)
 
     for variable in variables:
       print(f'-> Contout map gif for "{variable}" variable.',
@@ -202,7 +218,8 @@ class TestContourMap(unittest.TestCase):
       }
       if variable == 'zos':
         dim_constraints = {}
-      chart_builder.build_animation(
+      chart_builder = level_chart.AnimatedContourMapBuilder(
+        dataset=dataset,
         var_name=variable,
         title=plot_titles[variable],
         var_label=plot_measure_label[variable],
@@ -213,11 +230,11 @@ class TestContourMap(unittest.TestCase):
         duration=5,
         duration_unit='FRAMES_PER_SECOND',
         num_levels=9,
-        color_palette=palette_colors[variable])
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'contourmap-{plot_titles[variable]}-ANIMATION.gif'))
+        color_palette=palette_colors[variable],
+        verbose=True)
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR, f'contourmap-{plot_titles[variable]}-ANIMATION.gif')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait()
     
     print(f'Gifs stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
@@ -226,7 +243,7 @@ class TestContourMap(unittest.TestCase):
     self.assertTrue(True)
 
 
-class TestSinglePointTimeSeries(unittest.TestCase):
+class TestSinglePointTimeSeries(ChartBuilderTestCase):
   def test_many_depths(self):
     print('\n--- Starting time series static images test with many depths. ---',
       file=sys.stderr)
@@ -235,9 +252,6 @@ class TestSinglePointTimeSeries(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = line_chart.SinglePointTimeSeriesBuilder(
-      dataset=dataset,
-      verbose=True)
 
     date_range = slice('2020-01-01', '2020-12-01')
     for variable in variables:
@@ -257,7 +271,8 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         grouping_dim_name=None
       print(f'-> Static single-point time-series image for "{variable}" variable.',
         file=sys.stderr)
-      chart_builder.build_static(
+      chart_builder = line_chart.SinglePointTimeSeriesBuilder(
+        dataset=dataset,
         var_name=variable,
         title=f'{plot_titles[variable]} time series',
         grouping_dim_label='Depth (m)',
@@ -267,15 +282,12 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         grouping_dim_name=grouping_dim_name,
         time_dim_name='time',
         var_label=plot_measure_label[variable],
-        time_dim_label='Dates'
-      )
-      print(f'-> Image built.', file=sys.stderr)
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'single-point-time-series-{plot_titles[variable]}'))
-      print(f'-> Image saved', file=sys.stderr)
-    
+        time_dim_label='Dates',
+        verbose=True)
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR,f'single-point-time-series-{plot_titles[variable]}')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait()
+
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
@@ -291,9 +303,6 @@ class TestSinglePointTimeSeries(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = line_chart.SinglePointTimeSeriesBuilder(
-      dataset=dataset,
-      verbose=True)
 
     date_range = slice('2020-01-01', '2020-12-01')
     for variable in variables:
@@ -313,7 +322,8 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         grouping_dim_name=None
       print(f'-> Static single-point time-series image for "{variable}" variable.',
         file=sys.stderr)
-      chart_builder.build_static(
+      chart_builder = line_chart.SinglePointTimeSeriesBuilder(
+        dataset=dataset,
         var_name=variable,
         title=f'{plot_titles[variable]} time series',
         grouping_dim_label='Depth (m)',
@@ -323,14 +333,11 @@ class TestSinglePointTimeSeries(unittest.TestCase):
         grouping_dim_name=grouping_dim_name,
         time_dim_name='time',
         var_label=plot_measure_label[variable],
-        time_dim_label='Dates'
-      )
-      print(f'-> Image built.', file=sys.stderr)
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'one-depth-single-point-time-series-{plot_titles[variable]}'))
-      print(f'-> Image saved', file=sys.stderr)
+        time_dim_label='Dates',
+        verbose=True)
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR,f'one-depth-single-point-time-series-{plot_titles[variable]}')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait()
     
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
@@ -339,7 +346,7 @@ class TestSinglePointTimeSeries(unittest.TestCase):
     self.assertTrue(True)
 
 
-class TestSinglePointVerticalProfile(unittest.TestCase):
+class TestSinglePointVerticalProfile(ChartBuilderTestCase):
   def test_many_dates(self):
     print('\n--- Starting time series static images test with many dates. ---',
       file=sys.stderr)
@@ -348,9 +355,6 @@ class TestSinglePointVerticalProfile(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = line_chart.SinglePointVerticalProfileBuilder(
-      dataset=dataset,
-      verbose=True)
 
     date_range = ['2020-03-01', '2020-06-01', '2020-09-01', '2020-12-01']
     for variable in variables:
@@ -364,7 +368,8 @@ class TestSinglePointVerticalProfile(unittest.TestCase):
         continue
       print(f'-> Static single-point vertical profile image for "{variable}" variable.',
         file=sys.stderr)
-      chart_builder.build_static(
+      chart_builder = line_chart.SinglePointVerticalProfileBuilder(
+        dataset=dataset,
         var_name=variable,
         title=f'{plot_titles[variable]} by depth',
         grouping_dim_label='Dates',
@@ -374,14 +379,11 @@ class TestSinglePointVerticalProfile(unittest.TestCase):
         grouping_dim_name=grouping_dim_name,
         y_dim_name='depth',
         y_dim_label='Depth',
-        var_label=plot_measure_label[variable]
-      )
-      print(f'-> Image built.', file=sys.stderr)
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'single-point-vertical-profile-{plot_titles[variable]}'))
-      print(f'-> Image saved', file=sys.stderr)
+        var_label=plot_measure_label[variable],
+        verbose=True)
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR,f'single-point-vertical-profile-{plot_titles[variable]}')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait()
     
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
@@ -390,7 +392,7 @@ class TestSinglePointVerticalProfile(unittest.TestCase):
     self.assertTrue(True)
 
 
-class TestVerticalSlice(unittest.TestCase):
+class TestVerticalSlice(ChartBuilderTestCase):
   def test_static(self):
     print('\n--- Starting vertical slice for static image. ---',
       file=sys.stderr)
@@ -399,9 +401,6 @@ class TestVerticalSlice(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = level_chart.VerticalSliceBuilder(
-      dataset=dataset,
-      verbose=True)
 
     date = '2020-01-01'
     for variable in variables:
@@ -414,7 +413,8 @@ class TestVerticalSlice(unittest.TestCase):
         continue
       print(f'-> Static vertical slice for "{variable}" variable.',
         file=sys.stderr)
-      chart_builder.build_static(
+      chart_builder = level_chart.StaticVerticalSliceBuilder(
+        dataset=dataset,
         var_name=variable,
         x_dim_name='latitude',
         y_dim_name='depth',
@@ -424,14 +424,11 @@ class TestVerticalSlice(unittest.TestCase):
         var_label=plot_measure_label[variable],
         y_label='Depth (m)',
         x_label='Latitude (°)',
-        dim_constraints=dim_constraints
-      )
-      print(f'-> Image built.', file=sys.stderr)
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'vertical-slice-{plot_titles[variable]}'))
-      print(f'-> Image saved', file=sys.stderr)
+        dim_constraints=dim_constraints,
+        verbose=True)
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR,f'vertical-slice-{plot_titles[variable]}')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait()
     
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
@@ -448,9 +445,6 @@ class TestVerticalSlice(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = level_chart.VerticalSliceBuilder(
-      dataset=dataset,
-      verbose=True)
 
     date = '2020-01-01'
     for variable in variables:
@@ -463,7 +457,8 @@ class TestVerticalSlice(unittest.TestCase):
         continue
       print(f'-> Static vertical slice for "{variable}" variable.',
         file=sys.stderr)
-      chart_builder.build_static(
+      chart_builder = level_chart.StaticVerticalSliceBuilder(
+        dataset=dataset,
         var_name=variable,
         x_dim_name='longitude',
         y_dim_name='depth',
@@ -473,14 +468,11 @@ class TestVerticalSlice(unittest.TestCase):
         var_label=plot_measure_label[variable],
         y_label='Depth (m)',
         x_label='Longitude (°)',
-        dim_constraints=dim_constraints
-      )
-      print(f'-> Image built.', file=sys.stderr)
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'vertical-slice-{plot_titles[variable]}-lon'))
-      print(f'-> Image saved', file=sys.stderr)
+        dim_constraints=dim_constraints,
+        verbose=True)
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR,f'vertical-slice-{plot_titles[variable]}-lon')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait()
     
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
@@ -497,9 +489,6 @@ class TestVerticalSlice(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = level_chart.VerticalSliceBuilder(
-      dataset=dataset,
-      verbose=True)
 
     for variable in variables:
       dim_constraints = {
@@ -510,7 +499,8 @@ class TestVerticalSlice(unittest.TestCase):
         continue
       print(f'-> Animated vertical slice for "{variable}" variable.',
         file=sys.stderr)
-      chart_builder.build_animation(
+      chart_builder = level_chart.AnimatedVerticalSliceBuilder(
+        dataset=dataset,
         var_name=variable,
         x_dim_name='latitude',
         y_dim_name='depth',
@@ -524,13 +514,10 @@ class TestVerticalSlice(unittest.TestCase):
         dim_constraints=dim_constraints,
         duration=5,
         duration_unit='FRAMES_PER_SECOND',
-      )
-      print(f'-> Image built.', file=sys.stderr)
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'vertical-slice-{plot_titles[variable]}-ANIMATION.gif'))
-      print(f'-> Image saved', file=sys.stderr)
+        verbose=True)
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR,f'vertical-slice-{plot_titles[variable]}-ANIMATION.gif')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait()
     
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
@@ -547,9 +534,6 @@ class TestVerticalSlice(unittest.TestCase):
       DATA_DIR,
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
-    chart_builder = level_chart.VerticalSliceBuilder(
-      dataset=dataset,
-      verbose=True)
 
     for variable in variables:
       dim_constraints = {
@@ -560,7 +544,8 @@ class TestVerticalSlice(unittest.TestCase):
         continue
       print(f'-> Animated vertical slice for "{variable}" variable.',
         file=sys.stderr)
-      chart_builder.build_animation(
+      chart_builder = level_chart.AnimatedVerticalSliceBuilder(
+        dataset=dataset,
         var_name=variable,
         x_dim_name='longitude',
         y_dim_name='depth',
@@ -574,13 +559,10 @@ class TestVerticalSlice(unittest.TestCase):
         dim_constraints=dim_constraints,
         duration=5,
         duration_unit='FRAMES_PER_SECOND',
-      )
-      print(f'-> Image built.', file=sys.stderr)
-      chart_builder.save(
-        pathlib.Path(
-          VISUALIZATIONS_DIR,
-          f'vertical-slice-{plot_titles[variable]}-ANIMATION-lon.gif'))
-      print(f'-> Image saved', file=sys.stderr)
+        verbose=True)
+      self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR,f'vertical-slice-{plot_titles[variable]}-ANIMATION-lon.gif')
+      chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+      chart_builder.wait()
     
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
@@ -590,5 +572,4 @@ class TestVerticalSlice(unittest.TestCase):
 
 
 if __name__ == '__main__':
-  general_utils.mkdir_r(VISUALIZATIONS_DIR)
   unittest.main()
