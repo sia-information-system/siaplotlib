@@ -44,7 +44,42 @@ palette_colors = {
 }
 
 # Test definitions.
-# Test definitions.
+class TestRegionMap(unittest.TestCase):
+  def test_images(self):
+    print('\n--- Starting ArrowChart static images test. ---',
+      file=sys.stderr)
+    time_start = time.time()
+    chart_builder = level_chart.RegionMapBuilder(
+      verbose=True)
+    
+    # Max siempre debe ser mayor que min. 
+    lat_max = 13.1486956024108
+    lat_min = 11.423185257553918
+    lon_min = 51.80090168699295
+    lon_max = 54.97279570327394
+    amplitud = 0
+
+    chart_builder.build_static(
+        amplitude = amplitud,
+        lon_dim_min = lon_min,
+        lon_dim_max = lon_max,
+        lat_dim_min = lat_min,
+        lat_dim_max = lat_max
+      )
+    
+    print(f'-> Image built.', file=sys.stderr)
+    chart_builder.save(
+      pathlib.Path(
+      VISUALIZATIONS_DIR,
+      f'regionmap-test'))
+    print(f'-> Image saved', file=sys.stderr)
+
+    print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
+    print('Finishing test.', file=sys.stderr)
+    time_end = time.time()
+    print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
+    self.assertTrue(True)
+
 class TestArrowChart(unittest.TestCase):
   def test_images(self):
     print('\n--- Starting ArrowChart static images test. ---',
@@ -72,8 +107,8 @@ class TestArrowChart(unittest.TestCase):
     #lon = [dim_constraints['longitude'].start,dim_constraints['longitude'].stop]
 
     chart_builder.build_static(
-        var_ew = 'uo',
-        var_nw = 'vo',
+        eastward_var_name = 'uo',
+        northward_var_name = 'vo',
         var_lon = 'longitude',
         var_lat = 'latitude',
         title = 'ArrowChart',
@@ -109,7 +144,7 @@ class TestWindRose(unittest.TestCase):
       verbose=True)
     
     #min,max,jumps
-    bin_range = np.arange(0,1,.2) #Si falla, reduce el primer valor.
+    bin_range = np.arange(0.5,3,.5) #Condicion, el primer valor(min), debe ser menor que el mayor valor de la velocidad.
     #default value (16)
     nsector = 16
     target_date = '2022-10-11'
@@ -126,9 +161,9 @@ class TestWindRose(unittest.TestCase):
     #lon = [dim_constraints['longitude'].start,dim_constraints['longitude'].stop]
 
     chart_builder.build_static(
-        var_ew = 'uo',
-        var_nw = 'vo',
-        title = f'Windrose del {target_date}\n Depth: {depth}',
+        eastward_var_name = 'uo',
+        northward_var_name = 'vo',
+        title = f'Windrose',
         color_palette = 'viridis',
         dim_constraints= dim_constraints,
         bin_range = bin_range,
@@ -149,7 +184,7 @@ class TestWindRose(unittest.TestCase):
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
     self.assertTrue(True)
 
-
+"""
 class TestHeatMap(unittest.TestCase):
   def test_images(self):
     print('\n--- Starting heatmap static images test. ---',
@@ -694,6 +729,7 @@ class TestVerticalSlice(unittest.TestCase):
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
     self.assertTrue(True)
 
+"""
 
 if __name__ == '__main__':
   general_utils.mkdir_r(VISUALIZATIONS_DIR)

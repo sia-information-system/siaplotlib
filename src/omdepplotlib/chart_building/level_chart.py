@@ -11,7 +11,6 @@ from omdepplotlib.preprocessing import computations
 
 class HeatMapBuilder(base_builder.ChartBuilder):
   # Public methods.
-
   def __init__(
     self,
     dataset: xr.DataArray,
@@ -63,7 +62,7 @@ class HeatMapBuilder(base_builder.ChartBuilder):
       color_palette=color_palette,
       verbose=self.verbose)
     
-    return self
+    return self, subset
 
 
   def build_animation(
@@ -140,7 +139,7 @@ class HeatMapBuilder(base_builder.ChartBuilder):
       lat_interval=lat_interval,
       var_label=var_label)
     
-    return self
+    return self,subset
 
 
 class ContourMapBuilder(base_builder.ChartBuilder):
@@ -196,7 +195,7 @@ class ContourMapBuilder(base_builder.ChartBuilder):
       color_palette=color_palette,
       verbose=self.verbose)
     
-    return self
+    return self,subset
 
 
   def build_animation(
@@ -276,7 +275,7 @@ class ContourMapBuilder(base_builder.ChartBuilder):
       var_label=var_label,
       verbose=self.verbose)
     
-    return self
+    return self,subset
 
 
 class VerticalSliceBuilder(base_builder.ChartBuilder):
@@ -361,7 +360,7 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
       verbose=self.verbose
     )
     
-    return self
+    return self,subset
   
 
   def build_animation(
@@ -465,7 +464,7 @@ class VerticalSliceBuilder(base_builder.ChartBuilder):
       var_label=var_label,
       verbose=self.verbose)
     
-    return self
+    return self,subset
 
 class WindRoseBuilder(base_builder.ChartBuilder):
   # Public methods.
@@ -480,8 +479,8 @@ class WindRoseBuilder(base_builder.ChartBuilder):
 
   def build_static(
     self, 
-    var_ew: str,
-    var_nw: str,
+    eastward_var_name: str,
+    northward_var_name: str,
     title: str,
     bin_range: np.ndarray,
     nsector: int,
@@ -492,17 +491,29 @@ class WindRoseBuilder(base_builder.ChartBuilder):
     subset = munging.slice_dice(
       dataset=self.dataset,
       dim_constraints=dim_constraints)
+    
+    lat_min = round(subset.latitude.values.min(),3)
+    lat_max = round(subset.latitude.values.max(),3)
+
+    lon_min = round(subset.longitude.values.min(),3)
+    lon_max = round(subset.longitude.values.max(),3)
+
+    depth = subset.depth.values.max()
+    depth = round(float(depth),3)
+
+    title =  title + f'\n Depth: {depth} \n Lat: ({lat_min},{lat_max}), Lon: ({lon_min},{lon_max})'
+
     speed, direction = computations.calc_uniqueDir(
       dataset= subset,
-      var_ew = var_ew,
-      var_nw = var_nw)
-
+      eastward_var_name = eastward_var_name,
+      northward_var_name = northward_var_name)
+  
     directionUp = computations.corr_cord(dataset = direction) 
     directionUp = computations.drop_nan(dataset=directionUp)
-    speed = computations.drop_nan(dataset=speed)
-  
+    speedUp = computations.drop_nan(dataset=speed)
+
     self._chart = level_chart.WindRose(
-      speed=speed,
+      speed=speedUp,
       direction=directionUp,
       verbose=self.verbose,
       title=title,
@@ -510,7 +521,7 @@ class WindRoseBuilder(base_builder.ChartBuilder):
       nsector = nsector,
       color_palette=color_palette)
     
-    return self
+    return self, subset
   
 class ArrowChartBuilder(base_builder.ChartBuilder):
   # Public methods.
@@ -526,8 +537,8 @@ class ArrowChartBuilder(base_builder.ChartBuilder):
   def build_static(
     self, 
     stride : int,
-    var_ew: str,
-    var_nw: str,
+    eastward_var_name: str,
+    northward_var_name: str,
     var_lon: str,
     var_lat: str,
     title: str,
@@ -544,9 +555,36 @@ class ArrowChartBuilder(base_builder.ChartBuilder):
       verbose=self.verbose,
       title=title,
       stride = stride,
-      var_ew = var_ew,
-      var_nw = var_nw,
+      eastward_var_name = eastward_var_name,
+      northward_var_name = northward_var_name,
       var_lon = var_lon,
       var_lat = var_lat)
+    
+    return self, subset
+  
+class RegionMapBuilder(base_builder.ChartBuilder):
+  # Public methods.
+  def __init__(
+    self,
+    verbose: bool = False
+  ) -> None:
+    super().__init__(dataset=None,
+      verbose=verbose)
+
+  def build_static(
+    self,
+    amplitude: float,
+    lon_dim_min: float,
+    lon_dim_max: float,
+    lat_dim_min: float,
+    lat_dim_max: float
+  ):
+    
+    self._chart = level_chart.RegionMap(
+        amplitude = amplitude,
+        lon_dim_min = lon_dim_min,
+        lon_dim_max = lon_dim_max,
+        lat_dim_min = lat_dim_min,
+        lat_dim_max = lat_dim_max)
     
     return self

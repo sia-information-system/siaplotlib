@@ -69,7 +69,7 @@ class SinglePointTimeSeriesBuilder(base_builder.ChartBuilder):
       show_series_names=show_series_names,
       verbose=self.verbose)
     
-    return self
+    return self,subset
 
 
 class SinglePointVerticalProfileBuilder(base_builder.ChartBuilder):
@@ -135,4 +135,4 @@ class SinglePointVerticalProfileBuilder(base_builder.ChartBuilder):
       show_series_names=show_series_names,
       verbose=self.verbose)
     
-    return self
+    return self, subset

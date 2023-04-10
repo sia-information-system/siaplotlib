@@ -151,7 +151,8 @@ class ContourMap(base_chart.Chart):
       transform=ccrs.PlateCarree(), 
       levels=np.linspace(self.vmin, self.vmax, self.num_levels), 
       vmin=self.vmin, 
-      vmax=self.vmax)
+      vmax=self.vmax,
+      cmap=self.color_palette)
 
     # Add a colorbar for the filled contour.
     cbar = fig.colorbar(filled_c, ax=ax)
@@ -280,14 +281,14 @@ class WindRose(base_chart.Chart):
 
   def build(self):
     self.close()
-    
+
     ax = WindroseAxes.from_ax()
     ax.bar(self.direction,self.speed, normed=True, opening=1, 
            edgecolor='white', cmap=getattr(cm, self.color_palette),
            bins=self.bin_range, nsector = self.nsector)
     ax.set_yticklabels(ax.get_yticklabels(), color='r',fontsize=12)
     ax.set_title(self.title,fontsize = 15)
-    ax.set_legend()
+    ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1.05))
 
     self._fig = ax.figure
 
@@ -306,8 +307,8 @@ class ArrowChart(base_chart.Chart):
     data : xr.DataArray,
     title: str, 
     stride: int,
-    var_ew: str,
-    var_nw: str,
+    eastward_var_name: str,
+    northward_var_name: str,
     var_lon: str,
     var_lat: str,
     verbose: bool = False,
@@ -316,8 +317,8 @@ class ArrowChart(base_chart.Chart):
     self.data = data
     self.title = title
     self.stride = stride 
-    self.var_ew = var_ew
-    self.var_nw = var_nw
+    self.eastward_var_name = eastward_var_name
+    self.northward_var_name = northward_var_name
     self.var_lon = var_lon
     self.var_lat = var_lat
 
@@ -330,8 +331,8 @@ class ArrowChart(base_chart.Chart):
   def build(self):
     self.close()
     
-    vo = self.data[self.var_nw]
-    uo = self.data[self.var_ew]
+    vo = self.data[self.northward_var_name]
+    uo = self.data[self.eastward_var_name]
 
     fig = plt.figure(figsize=(20, 12))
     ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
@@ -351,5 +352,63 @@ class ArrowChart(base_chart.Chart):
       print(f'Image created.', file=sys.stderr)
     
     return self
+  
+class RegionMap(base_chart.Chart):
+  """
+  Create the region map.
+  """
+  def __init__(
+    self,
+    amplitude: float,
+    lon_dim_min: float,
+    lon_dim_max: float,
+    lat_dim_min: float,
+    lat_dim_max: float,
+    build_on_create: bool = True,
+  ) -> None:
+    self.lon_dim_min = lon_dim_min
+    self.lon_dim_max = lon_dim_max 
+    self.lat_dim_min = lat_dim_min
+    self.lat_dim_max = lat_dim_max
+    self.amplitude = amplitude
+
+    super().__init__()
+
+    if build_on_create:
+      self.build()
+
+  def build(self):
+    self.close()
+  
+    # Crear una figura y un objeto de proyección del mapa
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+
+    amp = self.amplitude
+
+    # Establecer los límites del mapa a las coordenadas límite del cuadrilátero
+    # Al igual se se agrega la amplitud, la cual esta dada en coordenadas.
+    ax.set_extent([self.lon_dim_min - amp, self.lon_dim_max + amp, 
+                   self.lat_dim_max + amp, self.lat_dim_min - amp], crs=ccrs.PlateCarree())
+    
+    # Personalizar la apariencia del mapa
+    ax.add_feature(cfeature.OCEAN, color='lightblue')
+    ax.add_feature(cfeature.LAND, color='green')
+    ax.coastlines(linewidth=0.5)
+    ax.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
+
+    # Dibujar las líneas que forman el cuadrilátero
+    ax.plot([self.lon_dim_min, self.lon_dim_max, self.lon_dim_max, 
+             self.lon_dim_min, self.lon_dim_min], 
+            [self.lat_dim_min, self.lat_dim_min,
+              self.lat_dim_max, self.lat_dim_max, self.lat_dim_min], 
+              color='red', linewidth=2, transform=ccrs.PlateCarree())
+    
+    self._fig = ax.figure
+    if self.verbose:
+      print(f'Image created.', file=sys.stderr)
+    
+    return self
+
 
 

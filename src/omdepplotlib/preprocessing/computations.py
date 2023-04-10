@@ -3,33 +3,33 @@ import numpy as np
 
 def calc_spd(
     dataset: xr.DataArray,
-    var_ew: str,
-    var_nw:str
+    eastward_var_name: str,
+    northward_var_name:str
     ) -> np.ndarray :
-    F =  np.sqrt(dataset[var_ew]**2 + dataset[var_nw]**2)
+    F =  np.sqrt(dataset[eastward_var_name]**2 + dataset[northward_var_name]**2)
     return F.values
 
 def calc_dir(
     dataset: xr.DataArray,
-    var_ew: str,
-    var_nw:str
+    eastward_var_name: str,
+    northward_var_name:str
     ) -> np.ndarray :
-    F = (90-(np.arctan2(dataset[var_ew], dataset[var_nw]) * (180 / np.pi)))
+    F = (90-(np.arctan2(dataset[eastward_var_name], dataset[northward_var_name]) * (180 / np.pi)))
     return F.values
 
 def calc_uniqueDir(
     dataset: xr.DataArray,
-    var_ew: str,
-    var_nw:str
+    eastward_var_name: str,
+    northward_var_name:str
     ) -> tuple[np.ndarray, np.ndarray] :
     
     speed = calc_spd(dataset= dataset,
-      var_ew = var_ew,
-      var_nw = var_nw)
+      eastward_var_name = eastward_var_name,
+      northward_var_name = northward_var_name)
     
     direction = calc_dir(dataset= dataset,
-      var_ew = var_ew,
-      var_nw = var_nw)
+      eastward_var_name = eastward_var_name,
+      northward_var_name = northward_var_name)
     
     return speed, direction
 
