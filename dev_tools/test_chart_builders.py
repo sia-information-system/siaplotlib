@@ -184,7 +184,7 @@ class TestWindRose(unittest.TestCase):
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
     self.assertTrue(True)
 
-"""
+
 class TestHeatMap(unittest.TestCase):
   def test_images(self):
     print('\n--- Starting heatmap static images test. ---',
@@ -729,7 +729,7 @@ class TestVerticalSlice(unittest.TestCase):
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
     self.assertTrue(True)
 
-"""
+
 
 if __name__ == '__main__':
   general_utils.mkdir_r(VISUALIZATIONS_DIR)
