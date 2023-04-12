@@ -356,7 +356,8 @@ class TestSinglePointVerticalProfile(ChartBuilderTestCase):
       DATASET_NAME_2)
     dataset = xr.open_dataset(dataset_path)
 
-    date_range = ['2020-03-01', '2020-06-01', '2020-09-01', '2020-12-01']
+    date_range = ['2020-03-01', '2020-03-09', '2020-09-01', '2020-12-01']
+    # date_range = ['2020-03-01', '2020-06-01', '2020-09-01', '2020-12-01']
     for variable in variables:
       grouping_dim_name='time'
       dim_constraints = {
