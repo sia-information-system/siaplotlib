@@ -23,6 +23,7 @@ and install the required dependencies in there.
 - cartopy
 - Pillow
 - netCDF4
+- WindRose
 
 ## Tests
 

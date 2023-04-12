@@ -5,9 +5,123 @@ from siaplotlib.charts import level_chart
 from siaplotlib.charts import raw_image
 from siaplotlib.processing import wrangling
 from siaplotlib.processing import aggregation
+from siaplotlib.processing import computations
 from siaplotlib.chart_building import base_builder
 
+class StaticWindRoseBuilder(base_builder.ChartBuilder):
+  # Public methods.
+  def __init__(
+    self, 
+    dataset: xr.DataArray,
+    eastward_var_name: str,
+    northward_var_name: str,
+    title: str,
+    bin_min: float,
+    bin_max: float,
+    bin_jmp: float, 
+    nsector: int,
+    lon_dim_name: str,
+    lat_dim_name: str,
+    log_stream: sys.stderr,
+    verbose: bool = False,
+    dim_constraints: dict = {},
+    color_palette: str = None
+  ) -> None:
+     super().__init__(
+      dataset=dataset,
+      log_stream=log_stream,
+      verbose=verbose)
+     self.eastward_var_name = eastward_var_name
+     self.northward_var_name = northward_var_name
+     self.lat_dim_name  = lat_dim_name 
+     self.lon_dim_name = lon_dim_name
+     self. title = title
+     self.bin_min = bin_min
+     self.bin_max = bin_max
+     self.bin_jmp = bin_jmp
+     self.nsector = nsector
+     self.dim_constraints = dim_constraints
+     self.color_palette = color_palette
+    
+  def sync_build(self):
+      
+      subset = wrangling.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=self.dim_constraints)
+      
+      lat_min = round(subset[self.lat_dim_name].values.min(),3)
+      lat_max = round(subset[self.lat_dim_name].values.max(),3)
 
+      lon_min = round(subset[self.lon_dim_name].values.min(),3)
+      lon_max = round(subset[self.lon_dim_name].values.max(),3)
+
+      depth = subset.depth.values.max()
+      depth = round(float(depth),3)
+
+      title =  self.title + f'\n Depth: {depth} \n Lat: ({lat_min},{lat_max}), Lon: ({lon_min},{lon_max})'
+
+      speed, direction = computations.calc_uniqueDir(
+        dataset = subset,
+        eastward_var_name = self.eastward_var_name,
+        northward_var_name = self.northward_var_name)
+      
+    
+      directionUp = computations.corr_cord(dataset = direction) 
+      directionUp = computations.drop_nan(dataset = directionUp)
+      speedUp = computations.drop_nan(dataset = speed)
+
+
+      bin_range = computations.calc_bins(
+        speed = speedUp,
+        bin_min = self.bin_min,
+        bin_max = self.bin_max,
+        bin_jmp = self.bin_jmp,
+      )
+    
+      self._chart = level_chart.WindRose(
+        speed=speedUp,
+        direction=directionUp,
+        title=title,
+        verbose=self.verbose,
+        bin_range = bin_range,
+        nsector = self.nsector,
+        color_palette = self.color_palette)
+      
+      return self
+
+class StaticRegionMapBuilder(base_builder.ChartBuilder):
+  # Public methods.
+
+  def __init__(
+    self,
+    amplitude: float,
+    lon_dim_min: float,
+    lon_dim_max: float,
+    lat_dim_min: float,
+    lat_dim_max: float,
+    log_stream = sys.stderr,
+    verbose: bool = False
+  ) -> None:
+    super().__init__(
+      dataset=None,
+      log_stream=log_stream,
+      verbose=verbose)
+    self.amplitude = amplitude
+    self.lon_dim_min = lon_dim_min
+    self.lon_dim_max = lon_dim_max
+    self.lat_dim_min = lat_dim_min
+    self.lat_dim_max = lat_dim_max
+
+  def sync_build(self):
+      self._chart = level_chart.RegionMap(
+        amplitude = self.amplitude,
+        lon_dim_min = self.lon_dim_min,
+        lon_dim_max = self.lon_dim_max,
+        lat_dim_min = self.lat_dim_min,
+        lat_dim_max = self.lat_dim_max)
+
+      return self
+  
 class StaticHeatMapBuilder(base_builder.ChartBuilder):
   # Public methods.
 
@@ -71,8 +185,7 @@ class StaticHeatMapBuilder(base_builder.ChartBuilder):
       verbose=self.verbose)
     
     return self
-
-
+  
 class AnimatedHeatMapBuilder(base_builder.ChartBuilder):
   def __init__(
     self,
