@@ -177,3 +177,11 @@ def group_into_series(
         index=index)
       series_list.append(series)
   return series_list
+
+
+def drop_nan(
+    dataset: np.ndarray 
+) -> np.ndarray :
+    nan_indices = np.isnan(dataset)
+    dataset = dataset[~nan_indices]
+    return dataset

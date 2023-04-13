@@ -18,7 +18,8 @@ dependencies = [
   "netcdf4 >= 1.6.1",
   "matplotlib >= 3.6.2",
   "pillow >= 9.3.0",
-  "cartopy >= 0.21.1"
+  "cartopy >= 0.21.1",
+  "windrose >= 1.8.1"
 ]
 requires-python = ">=3.10"
 

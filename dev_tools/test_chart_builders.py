@@ -60,30 +60,35 @@ class ChartBuilderTestCase(unittest.TestCase):
   def __init__(self, methodName: str = "runTest") -> None:
     super().__init__(methodName)
     self.chart_filepath: pathlib.Path | str = '__filepath__'
+    self.process_ok = False
 
   def success_build_callback(self, chart_builder: ChartBuilder, subset):
     print(f'-> Image built.', file=sys.stderr)
     chart_builder.save(self.chart_filepath)
     print(f'-> Image saved', file=sys.stderr)
     chart_builder.close()
+    self.process_ok = True
     # del chart_builder
+
 
   def success_build_nodataset_callback(self, chart_builder: ChartBuilder):
     print(f'-> Image built.', file=sys.stderr)
     chart_builder.save(self.chart_filepath)
     print(f'-> Image saved', file=sys.stderr)
     chart_builder.close()
+    self.process_ok = True
 
 
   def failure_build_callback(self, err: BaseException):
     print('--- An error ocurr while building the chart. ---', file=sys.stderr)
     print(err, file=sys.stderr)
-    self.assertTrue(False)
+    self.process_ok = False
 
 # Test definitions.
 # TODO: Implement the log stream system.
 class TestRegionMap(ChartBuilderTestCase):
   def test_images(self):
+    self.process_ok = False
     print('\n--- Starting RegionMapChart static images test. ---',
       file=sys.stderr)
     time_start = time.time()
@@ -93,10 +98,10 @@ class TestRegionMap(ChartBuilderTestCase):
     lat_min = 11.42
     lon_min = 51.80
     lon_max = 54.97
-    amplitud = 0
+    amplitud = 1
 
     self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR, f'MapRegion')
-    chart_builder = level_chart.StaticRegionMapBuilder(
+    chart_builder = line_chart.StaticRegionMapBuilder(
         amplitude = amplitud,
         lon_dim_min = lon_min,
         lon_dim_max = lon_max,
@@ -106,14 +111,16 @@ class TestRegionMap(ChartBuilderTestCase):
         verbose=True)
     chart_builder.build(success_callback=self.success_build_nodataset_callback, failure_callback=self.failure_build_callback)
     chart_builder.wait() 
+    self.assertTrue(self.process_ok)
 
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
+
 
 class TestWindRose(ChartBuilderTestCase):
    def test_images(self):
+    self.process_ok = False
     print('\n--- Starting WindRose static images test. ---',
       file=sys.stderr)
     time_start = time.time()
@@ -148,6 +155,7 @@ class TestWindRose(ChartBuilderTestCase):
       northward_var_name = northward_var_name,
       lat_dim_name = lat_dim_name ,
       lon_dim_name = lon_dim_name,
+      depth_dim_name=depth_name,
       title = title,
       bin_min = bin_min,
       bin_max = bin_max,
@@ -160,14 +168,15 @@ class TestWindRose(ChartBuilderTestCase):
     chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
     chart_builder.wait() 
 
+    self.assertTrue(self.process_ok)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
 
 
 class TestHeatMap(ChartBuilderTestCase):
   def test_images(self):
+    self.process_ok = False
     print('\n--- Starting heatmap static images test. ---',
       file=sys.stderr)
     time_start = time.time()
@@ -203,14 +212,16 @@ class TestHeatMap(ChartBuilderTestCase):
         verbose=True)
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait() # Awaits untill the .build() async call ends.
-    
+
+    self.assertTrue(self.process_ok)    
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
+
 
   def test_gifs(self):
+    self.process_ok = False
     print('\n--- Starting heatmap gifs test. ---', file=sys.stderr)
     time_start = time.time()
 
@@ -245,15 +256,16 @@ class TestHeatMap(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait() # Awaits untill the .build() async call ends.
 
+    self.assertTrue(self.process_ok)
     print(f'Gifs stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
 
 
 class TestContourMap(ChartBuilderTestCase):
   def test_images(self):
+    self.process_ok = False
     print('\n--- Starting contour map static images test. ---', file=sys.stderr)
     time_start = time.time()
     dataset_path = pathlib.Path(
@@ -288,14 +300,15 @@ class TestContourMap(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait()
     
+    self.assertTrue(self.process_ok)
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
   
 
   def test_gifs(self):
+    self.process_ok = False
     print('\n--- Starting contour map gifs test. ---', file=sys.stderr)
     time_start = time.time()
 
@@ -330,14 +343,16 @@ class TestContourMap(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait()
     
+    self.assertTrue(self.process_ok)
     print(f'Gifs stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
+
 
 class TestSinglePointTimeSeries(ChartBuilderTestCase):
   def test_many_depths(self):
+    self.process_ok = False
     print('\n--- Starting time series static images test with many depths. ---',
       file=sys.stderr)
     time_start = time.time()
@@ -381,14 +396,15 @@ class TestSinglePointTimeSeries(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait()
 
+    self.assertTrue(self.process_ok)
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
   
 
   def test_single_depth(self):
+    self.process_ok = False
     print('\n--- Starting time series static images test with single depth. ---',
       file=sys.stderr)
     time_start = time.time()
@@ -432,15 +448,16 @@ class TestSinglePointTimeSeries(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait()
     
+    self.assertTrue(self.process_ok)
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
 
 
 class TestSinglePointVerticalProfile(ChartBuilderTestCase):
   def test_many_dates(self):
+    self.process_ok = False
     print('\n--- Starting time series static images test with many dates. ---',
       file=sys.stderr)
     time_start = time.time()
@@ -479,15 +496,16 @@ class TestSinglePointVerticalProfile(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait()
     
+    self.assertTrue(self.process_ok)
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
 
 
 class TestVerticalSlice(ChartBuilderTestCase):
   def test_static(self):
+    self.process_ok = False
     print('\n--- Starting vertical slice for static image. ---',
       file=sys.stderr)
     time_start = time.time()
@@ -524,14 +542,15 @@ class TestVerticalSlice(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait()
     
+    self.assertTrue(self.process_ok)
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
 
   
   def test_static_lon(self):
+    self.process_ok = False
     print('\n--- Starting vertical slice for static image (longitude-). ---',
       file=sys.stderr)
     time_start = time.time()
@@ -568,14 +587,15 @@ class TestVerticalSlice(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait()
     
+    self.assertTrue(self.process_ok)
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
   
 
   def test_animated(self):
+    self.process_ok = False
     print('\n--- Starting vertical slice for animated image. ---',
       file=sys.stderr)
     time_start = time.time()
@@ -613,14 +633,15 @@ class TestVerticalSlice(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait()
     
+    self.assertTrue(self.process_ok)
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
   
 
   def test_animated_lon(self):
+    self.process_ok = False
     print('\n--- Starting vertical slice for animated image (longitude-). ---',
       file=sys.stderr)
     time_start = time.time()
@@ -658,11 +679,11 @@ class TestVerticalSlice(ChartBuilderTestCase):
       chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
       chart_builder.wait()
     
+    self.assertTrue(self.process_ok)
     print(f'Images stored in: {VISUALIZATIONS_DIR}', file=sys.stderr)
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-    self.assertTrue(True)
 
 
 if __name__ == '__main__':

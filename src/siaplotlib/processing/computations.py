@@ -53,10 +53,3 @@ def corr_cord(
     dataset: np.ndarray 
     ) -> np.ndarray :
     return xr.where(dataset < 0, dataset + 360, dataset)
-
-def drop_nan(
-    dataset: np.ndarray 
-) -> np.ndarray :
-    nan_indices = np.isnan(dataset)
-    dataset = dataset[~nan_indices]
-    return dataset

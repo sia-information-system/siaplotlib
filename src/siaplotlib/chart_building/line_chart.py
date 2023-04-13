@@ -8,6 +8,40 @@ from siaplotlib.processing import wrangling
 from siaplotlib.charts import line_chart
 
 
+class StaticRegionMapBuilder(ChartBuilder):
+  # Public methods.
+
+  def __init__(
+    self,
+    amplitude: float,
+    lon_dim_min: float,
+    lon_dim_max: float,
+    lat_dim_min: float,
+    lat_dim_max: float,
+    log_stream = sys.stderr,
+    verbose: bool = False
+  ) -> None:
+    super().__init__(
+      dataset=None,
+      log_stream=log_stream,
+      verbose=verbose)
+    self.amplitude = amplitude
+    self.lon_dim_min = lon_dim_min
+    self.lon_dim_max = lon_dim_max
+    self.lat_dim_min = lat_dim_min
+    self.lat_dim_max = lat_dim_max
+
+  def sync_build(self):
+      self._chart = line_chart.RegionMap(
+        amplitude = self.amplitude,
+        lon_dim_min = self.lon_dim_min,
+        lon_dim_max = self.lon_dim_max,
+        lat_dim_min = self.lat_dim_min,
+        lat_dim_max = self.lat_dim_max)
+
+      return self
+
+
 class SinglePointTimeSeriesBuilder(ChartBuilder):
   # Public methods.
 
@@ -82,7 +116,7 @@ class SinglePointTimeSeriesBuilder(ChartBuilder):
       log_stream=self.log_stream,
       verbose=self.verbose)
     
-    return self
+    return self, subset
 
 
 class SinglePointVerticalProfileBuilder(ChartBuilder):
@@ -159,4 +193,4 @@ class SinglePointVerticalProfileBuilder(ChartBuilder):
       log_stream=self.log_stream,
       verbose=self.verbose)
     
-    return self
+    return self, subset

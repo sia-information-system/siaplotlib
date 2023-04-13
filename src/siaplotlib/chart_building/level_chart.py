@@ -22,6 +22,7 @@ class StaticWindRoseBuilder(base_builder.ChartBuilder):
     nsector: int,
     lon_dim_name: str,
     lat_dim_name: str,
+    depth_dim_name: str,
     log_stream: sys.stderr,
     verbose: bool = False,
     dim_constraints: dict = {},
@@ -35,6 +36,7 @@ class StaticWindRoseBuilder(base_builder.ChartBuilder):
      self.northward_var_name = northward_var_name
      self.lat_dim_name  = lat_dim_name 
      self.lon_dim_name = lon_dim_name
+     self.depth_dim_name = depth_dim_name
      self. title = title
      self.bin_min = bin_min
      self.bin_max = bin_max
@@ -55,7 +57,7 @@ class StaticWindRoseBuilder(base_builder.ChartBuilder):
       lon_min = round(subset[self.lon_dim_name].values.min(),3)
       lon_max = round(subset[self.lon_dim_name].values.max(),3)
 
-      depth = subset.depth.values.max()
+      depth = subset[self.depth_dim_name].values.max()
       depth = round(float(depth),3)
 
       title =  self.title + f'\n Depth: {depth} \n Lat: ({lat_min},{lat_max}), Lon: ({lon_min},{lon_max})'
@@ -67,8 +69,8 @@ class StaticWindRoseBuilder(base_builder.ChartBuilder):
       
     
       directionUp = computations.corr_cord(dataset = direction) 
-      directionUp = computations.drop_nan(dataset = directionUp)
-      speedUp = computations.drop_nan(dataset = speed)
+      directionUp = wrangling.drop_nan(dataset = directionUp)
+      speedUp = wrangling.drop_nan(dataset = speed)
 
 
       bin_range = computations.calc_bins(
@@ -89,38 +91,6 @@ class StaticWindRoseBuilder(base_builder.ChartBuilder):
       
       return self,subset
 
-class StaticRegionMapBuilder(base_builder.ChartBuilder):
-  # Public methods.
-
-  def __init__(
-    self,
-    amplitude: float,
-    lon_dim_min: float,
-    lon_dim_max: float,
-    lat_dim_min: float,
-    lat_dim_max: float,
-    log_stream = sys.stderr,
-    verbose: bool = False
-  ) -> None:
-    super().__init__(
-      dataset=None,
-      log_stream=log_stream,
-      verbose=verbose)
-    self.amplitude = amplitude
-    self.lon_dim_min = lon_dim_min
-    self.lon_dim_max = lon_dim_max
-    self.lat_dim_min = lat_dim_min
-    self.lat_dim_max = lat_dim_max
-
-  def sync_build(self):
-      self._chart = level_chart.RegionMap(
-        amplitude = self.amplitude,
-        lon_dim_min = self.lon_dim_min,
-        lon_dim_max = self.lon_dim_max,
-        lat_dim_min = self.lat_dim_min,
-        lat_dim_max = self.lat_dim_max)
-
-      return self
   
 class StaticHeatMapBuilder(base_builder.ChartBuilder):
   # Public methods.
