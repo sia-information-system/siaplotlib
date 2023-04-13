@@ -5,8 +5,57 @@ import matplotlib.pyplot as plt
 from siaplotlib.charts import base_chart
 import xarray as xr
 import numpy as np
+import matplotlib.cm as cm
+from windrose import WindroseAxes
+
+class WindRose(base_chart.Chart):
+  """
+  Create a WindRose.
+  """
+  def __init__(
+    self,
+    speed: np.ndarray, 
+    direction: np.ndarray,
+    title: str, 
+    bin_range = np.ndarray,
+    nsector = int,
+    color_palette: str = 'viridis',
+    build_on_create: bool = True,
+    log_stream = sys.stderr,
+    verbose: bool = False
+  ) -> None:
+    self.speed = speed
+    self.direction = direction
+    self.title = title
+    self.color_palette = color_palette
+    self.bin_range = bin_range
+    self.nsector = nsector
+
+    super().__init__(log_stream=log_stream, verbose=verbose)
+
+    if build_on_create:
+      self.build()
 
 
+  def build(self):
+    self.close()
+
+    ax = WindroseAxes.from_ax()
+    ax.bar(self.direction,self.speed, normed=True, opening=1, 
+           edgecolor='white', cmap=getattr(cm, self.color_palette),
+           bins=self.bin_range, nsector = self.nsector)
+    ax.set_yticklabels(ax.get_yticklabels(), color='r',fontsize=12)
+    ax.set_title(self.title,fontsize = 15)
+    ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1.05))
+
+    self._fig = ax.figure
+
+    if self.verbose:
+      print(f'Image created.', file=sys.stderr)
+    
+    return self
+
+  
 class HeatMap(base_chart.Chart):
   """
   Create a heat map chart.
@@ -149,7 +198,8 @@ class ContourMap(base_chart.Chart):
       transform=ccrs.PlateCarree(), 
       levels=np.linspace(self.vmin, self.vmax, self.num_levels), 
       vmin=self.vmin, 
-      vmax=self.vmax)
+      vmax=self.vmax,
+      cmap=self.color_palette)
 
     # Add a colorbar for the filled contour.
     cbar = fig.colorbar(filled_c, ax=ax)

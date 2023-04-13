@@ -9,6 +9,64 @@ import cartopy.feature as cfeature
 from siaplotlib.charts import base_chart
 
 
+class RegionMap(base_chart.Chart):
+  """
+  Create the region map.
+  """
+  def __init__(
+    self,
+    amplitude: float,
+    lon_dim_min: float,
+    lon_dim_max: float,
+    lat_dim_min: float,
+    lat_dim_max: float,
+    build_on_create: bool = True,
+    log_stream = sys.stderr,
+    verbose: bool = False
+  ) -> None:
+    super().__init__(log_stream=log_stream, verbose=verbose)
+    self.lon_dim_min = lon_dim_min
+    self.lon_dim_max = lon_dim_max 
+    self.lat_dim_min = lat_dim_min
+    self.lat_dim_max = lat_dim_max
+    self.amplitude = amplitude
+
+    if build_on_create:
+      self.build()
+
+  def build(self):
+    self.close()
+
+    # Crear una figura y un objeto de proyección del mapa
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+
+    amp = self.amplitude
+
+    # Establecer los límites del mapa a las coordenadas límite del cuadrilátero
+    # Al igual se se agrega la amplitud, la cual esta dada en coordenadas.
+    ax.set_extent([self.lon_dim_min - amp, self.lon_dim_max + amp, 
+                   self.lat_dim_max + amp, self.lat_dim_min - amp], crs=ccrs.PlateCarree())
+
+    # Personalizar la apariencia del mapa
+    ax.add_feature(cfeature.OCEAN, color='lightblue')
+    ax.add_feature(cfeature.LAND, color='green')
+    ax.coastlines(linewidth=0.5)
+    ax.gridlines(draw_labels=True, linewidth=0.5, color='gray', alpha=0.5, linestyle='--')
+
+    # Dibujar las líneas que forman el cuadrilátero
+    ax.plot([self.lon_dim_min, self.lon_dim_max, self.lon_dim_max, 
+             self.lon_dim_min, self.lon_dim_min], 
+            [self.lat_dim_min, self.lat_dim_min,
+              self.lat_dim_max, self.lat_dim_max, self.lat_dim_min], 
+              color='red', linewidth=2, transform=ccrs.PlateCarree())
+
+    self._fig = ax.figure
+    self.log('Image created.')
+
+    return self
+
+
 class SinglePointTimeSeries(base_chart.Chart):
   """
   In order to plot each series in the graph,

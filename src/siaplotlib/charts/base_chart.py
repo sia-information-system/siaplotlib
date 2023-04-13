@@ -39,7 +39,7 @@ class Chart(ChartInterface, LoggingFeatures):
       # TODO: Raise and appropriate exception class.
       raise RuntimeError('Pyplot figure has not been created.')
   
-    self._fig.savefig(filepath, dpi=100, bbox_inches='tight')
+    self._fig.savefig(filepath, dpi=300, bbox_inches='tight')
     self._fig_path = filepath
     self.log(f'Image saved in: {filepath}')
   
@@ -53,7 +53,7 @@ class Chart(ChartInterface, LoggingFeatures):
 
   def get_buffer(self) -> io.BytesIO:
     img_buff = io.BytesIO()
-    self._fig.savefig(img_buff, dpi=100, bbox_inches='tight')
+    self._fig.savefig(img_buff, dpi=300, bbox_inches='tight')
     return img_buff
   
 
