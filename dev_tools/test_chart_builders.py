@@ -61,12 +61,18 @@ class ChartBuilderTestCase(unittest.TestCase):
     super().__init__(methodName)
     self.chart_filepath: pathlib.Path | str = '__filepath__'
 
-  def success_build_callback(self, chart_builder: ChartBuilder):
+  def success_build_callback(self, chart_builder: ChartBuilder, subset):
     print(f'-> Image built.', file=sys.stderr)
     chart_builder.save(self.chart_filepath)
     print(f'-> Image saved', file=sys.stderr)
     chart_builder.close()
     # del chart_builder
+
+  def success_build_nodataset_callback(self, chart_builder: ChartBuilder):
+    print(f'-> Image built.', file=sys.stderr)
+    chart_builder.save(self.chart_filepath)
+    print(f'-> Image saved', file=sys.stderr)
+    chart_builder.close()
 
 
   def failure_build_callback(self, err: BaseException):
@@ -98,7 +104,7 @@ class TestRegionMap(ChartBuilderTestCase):
         lat_dim_max = lat_max,
         log_stream=log_stream,
         verbose=True)
-    chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+    chart_builder.build(success_callback=self.success_build_nodataset_callback, failure_callback=self.failure_build_callback)
     chart_builder.wait() 
 
     print('Finishing test.', file=sys.stderr)

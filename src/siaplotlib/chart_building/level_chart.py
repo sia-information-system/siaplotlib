@@ -87,7 +87,7 @@ class StaticWindRoseBuilder(base_builder.ChartBuilder):
         nsector = self.nsector,
         color_palette = self.color_palette)
       
-      return self
+      return self,subset
 
 class StaticRegionMapBuilder(base_builder.ChartBuilder):
   # Public methods.
@@ -184,7 +184,7 @@ class StaticHeatMapBuilder(base_builder.ChartBuilder):
       log_stream=self.log_stream,
       verbose=self.verbose)
     
-    return self
+    return self,subset
   
 class AnimatedHeatMapBuilder(base_builder.ChartBuilder):
   def __init__(
@@ -279,7 +279,7 @@ class AnimatedHeatMapBuilder(base_builder.ChartBuilder):
       log_stream=self.log_stream,
       verbose=self.verbose)
     
-    return self
+    return self,subset
 
 # TODO: Test the static of this, use the log method and make the Animated class
 class StaticContourMapBuilder(base_builder.ChartBuilder):
@@ -341,7 +341,7 @@ class StaticContourMapBuilder(base_builder.ChartBuilder):
       log_stream=self.log_stream,
       verbose=self.verbose)
     
-    return self
+    return self,subset
 
 
 class AnimatedContourMapBuilder(base_builder.ChartBuilder):
@@ -440,7 +440,7 @@ class AnimatedContourMapBuilder(base_builder.ChartBuilder):
       log_stream=self.log_stream,
       verbose=self.verbose)
     
-    return self
+    return self,subset
 
 
 class StaticVerticalSliceBuilder(base_builder.ChartBuilder):
@@ -533,7 +533,7 @@ class StaticVerticalSliceBuilder(base_builder.ChartBuilder):
       verbose=self.verbose
     )
     
-    return self
+    return self,subset
   
 
 class AnimatedVerticalSliceBuilder(base_builder.ChartBuilder):
@@ -655,4 +655,4 @@ class AnimatedVerticalSliceBuilder(base_builder.ChartBuilder):
       log_stream=self.log_stream,
       verbose=self.verbose)
     
-    return self
+    return self,subset
