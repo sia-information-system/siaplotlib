@@ -1,8 +1,18 @@
 # Standard
 import unittest
+import sys
+from pathlib import Path
+# Third party
+import xarray as xr
 # Own
 from siaplotlib.processing.parallelism import AsyncRunner
+from siaplotlib.processing import wrangling
 
+# Custom test dependencies
+from lib_utils.general_utils import DATA_DIR
+
+DATASET_NAME_1 = 'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-10h-31m-10s-857022ms.nc'
+DATASET_NAME_2 = 'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-13h-27m-31s-211639ms-monthly.nc'
 
 class TestAsyncRunner(unittest.TestCase):
   def __init__(self, methodName: str = "runTest") -> None:
@@ -97,6 +107,26 @@ class TestAsyncRunner(unittest.TestCase):
     async_runner.run()
     async_runner.wait()
     self.assertTrue(self.async_process_ok)
+
+
+class TestDatasetTransformations(unittest.TestCase):
+  def test_compute_single_velocity(self):
+    dataset_path = Path(DATA_DIR, DATASET_NAME_1)
+    dataset = xr.open_dataset(dataset_path)
+    northward_var_name = 'vo'
+    eastward_var_name = 'uo'
+    single_vel_var_name = 'single_velocity'
+    new_ds = wrangling.calc_unique_velocity(
+      dataset=dataset,
+      eastward_var_name=eastward_var_name,
+      northward_var_name=northward_var_name,
+      unique_velocity_name=single_vel_var_name)
+    print('--- NEW DATASET:', file=sys.stderr)
+    print(new_ds, file=sys.stderr)
+    print('--- NEW VAR ATTRS:', file=sys.stderr)
+    print(new_ds[single_vel_var_name].attrs, file=sys.stderr)
+    print('--- PREVIOUS DATASET:', file=sys.stderr)
+    print(dataset, file=sys.stderr)
 
 
 if __name__ == '__main__':
