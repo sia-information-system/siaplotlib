@@ -84,8 +84,7 @@ class ChartBuilderTestCase(unittest.TestCase):
     self.process_ok = False
 
 # Test definitions.
-# TODO: Implement the log stream system.
-class TestWindRose(ChartBuilderTestCase):
+class TestArrowChart(ChartBuilderTestCase):
    def test_images(self):
     self.process_ok = False
     print('\n--- Starting ArrowChart static images test. ---',
@@ -113,7 +112,7 @@ class TestWindRose(ChartBuilderTestCase):
       }
     
     self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR, f'ArrowChart')
-    chart_builder = level_chart.StaticArrowChartBuilder(
+    chart_builder = line_chart.StaticArrowChartBuilder(
       dataset = dataset,
       eastward_var_name = eastward_var_name,
       northward_var_name = northward_var_name,
@@ -122,6 +121,7 @@ class TestWindRose(ChartBuilderTestCase):
       depth_dim_name = depth_name,
       grouping_level = grouping_level,
       title = title,
+      var_label='Velocidad (m/s)',
       time_name = time_name,
       dim_constraints = dim_constraints,
       log_stream=log_stream,

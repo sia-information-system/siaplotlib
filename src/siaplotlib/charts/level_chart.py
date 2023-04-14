@@ -3,74 +3,10 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
 from siaplotlib.charts import base_chart
-import xarray as xr
 import numpy as np
 import matplotlib.cm as cm
 from windrose import WindroseAxes
 
-class ArrowChart(base_chart.Chart):
-  """
-  Create an ArrowChart.
-  """
-  def __init__(
-    self,
-    dataset: xr.DataArray, 
-    speed: np.ndarray,
-    title: str, 
-    eastward_var_name: str,
-    northward_var_name: str,
-    lat_dim_name: str,
-    lon_dim_name: str,
-    grouping_level: str,
-    build_on_create: bool = True,
-    log_stream = sys.stderr,
-    verbose: bool = False
-  ) -> None:
-    self.dataset = dataset
-    self.speed = speed
-    self.title = title
-    self.eastward_var_name = eastward_var_name
-    self.northward_var_name = northward_var_name
-    self.lat_dim_name = lat_dim_name
-    self.lon_dim_name = lon_dim_name
-    self.grouping_level = grouping_level
-
-
-    super().__init__(log_stream=log_stream, verbose=verbose)
-
-    if build_on_create:
-      self.build()
-
-
-  def build(self):
-    self.close()
-
-    data = self.dataset
-    grp = self.grouping_level
-
-    vo = data[self.northward_var_name]
-    uo = data[self.eastward_var_name]
-
-    lon = data[self.lon_dim_name][::grp]
-    lat = data[self.lat_dim_name][::grp]
-
-    fig = plt.figure(figsize=(4, 6))
-    ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
-
-    cmap = plt.cm.rainbow
-    im = ax.quiver(lon,lat, uo[::grp,::grp], vo[::grp,::grp], self.speed[::grp,::grp], cmap=cmap, transform=ccrs.PlateCarree(), pivot='tail')
-
-    ax.coastlines()
-    ax.add_feature(cfeature.LAND, facecolor='lightgray')
-    plt.title(self.title)
-    plt.colorbar(im, label='Velocidad (m/s)')
-
-    self._fig = ax.figure
-
-    if self.verbose:
-      print(f'Image created.', file=sys.stderr)
-    
-    return self
 
 class WindRose(base_chart.Chart):
   """

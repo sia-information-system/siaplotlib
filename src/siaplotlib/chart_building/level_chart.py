@@ -6,77 +6,10 @@ from siaplotlib.charts import raw_image
 from siaplotlib.processing import wrangling
 from siaplotlib.processing import aggregation
 from siaplotlib.processing import computations
-from siaplotlib.chart_building import base_builder
+from siaplotlib.chart_building.base_builder import ChartBuilder
 
 
-class StaticArrowChartBuilder(base_builder.ChartBuilder):
-  # Public methods.
-  def __init__(
-    self, 
-    dataset: xr.DataArray,
-    eastward_var_name: str,
-    northward_var_name: str,
-    grouping_level,
-    title: str,
-    time_name: str,
-    lon_dim_name: str,
-    lat_dim_name: str,
-    depth_dim_name: str,
-    dim_constraints: dict = {},
-    log_stream = sys.stderr,
-    verbose: bool = False
-  ) -> None:
-     super().__init__(
-      dataset=dataset,
-      log_stream=log_stream,
-      verbose=verbose)
-     self.eastward_var_name = eastward_var_name
-     self.northward_var_name = northward_var_name
-     self.lat_dim_name  = lat_dim_name 
-     self.lon_dim_name = lon_dim_name
-     self.depth_dim_name = depth_dim_name
-     self.title = title
-     self.time_name = time_name
-     self.grouping_level = grouping_level
-     self.dim_constraints = dim_constraints
-
-    
-  def sync_build(self):
-      
-      subset = wrangling.slice_dice(
-        dataset=self.dataset,
-        dim_constraints=self.dim_constraints)
-      
-      speed = computations.calc_spd(
-        dataset=subset,
-        eastward_var_name= self.eastward_var_name,
-        northward_var_name= self.northward_var_name)
-      
-      dp_nm = self.depth_dim_name
-      depth = subset[dp_nm].values.max()
-      depth = round(float(depth),3)
-
-      tm_nm = self.time_name
-      date = subset[tm_nm].values
-      date = date.astype('datetime64[D]')
-
-      title =  self.title + f'\n Depth: {depth} \n Date: {date}'
-
-      self._chart = level_chart.ArrowChart(
-        dataset=subset,
-        speed=speed,
-        title=title,
-        eastward_var_name=self.eastward_var_name,
-        northward_var_name=self.northward_var_name,
-        lat_dim_name=self.lat_dim_name,
-        lon_dim_name=self.lon_dim_name,
-        grouping_level=self.grouping_level,
-        verbose=self.verbose)
-      
-      return self,subset
-
-
-class StaticWindRoseBuilder(base_builder.ChartBuilder):
+class StaticWindRoseBuilder(ChartBuilder):
   # Public methods.
   def __init__(
     self, 
@@ -160,7 +93,7 @@ class StaticWindRoseBuilder(base_builder.ChartBuilder):
       return self,subset
 
   
-class StaticHeatMapBuilder(base_builder.ChartBuilder):
+class StaticHeatMapBuilder(ChartBuilder):
   # Public methods.
 
   def __init__(
@@ -224,7 +157,7 @@ class StaticHeatMapBuilder(base_builder.ChartBuilder):
     
     return self,subset
   
-class AnimatedHeatMapBuilder(base_builder.ChartBuilder):
+class AnimatedHeatMapBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
@@ -319,8 +252,8 @@ class AnimatedHeatMapBuilder(base_builder.ChartBuilder):
     
     return self,subset
 
-# TODO: Test the static of this, use the log method and make the Animated class
-class StaticContourMapBuilder(base_builder.ChartBuilder):
+
+class StaticContourMapBuilder(ChartBuilder):
   def __init__(self,
     dataset: xr.DataArray,
     var_name: str,
@@ -382,7 +315,7 @@ class StaticContourMapBuilder(base_builder.ChartBuilder):
     return self,subset
 
 
-class AnimatedContourMapBuilder(base_builder.ChartBuilder):
+class AnimatedContourMapBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
@@ -481,7 +414,7 @@ class AnimatedContourMapBuilder(base_builder.ChartBuilder):
     return self,subset
 
 
-class StaticVerticalSliceBuilder(base_builder.ChartBuilder):
+class StaticVerticalSliceBuilder(ChartBuilder):
   # Public methods.
 
   def __init__(
@@ -574,7 +507,7 @@ class StaticVerticalSliceBuilder(base_builder.ChartBuilder):
     return self,subset
   
 
-class AnimatedVerticalSliceBuilder(base_builder.ChartBuilder):
+class AnimatedVerticalSliceBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
