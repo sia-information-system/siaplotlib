@@ -178,10 +178,28 @@ def group_into_series(
       series_list.append(series)
   return series_list
 
-
 def drop_nan(
-    dataset: np.ndarray 
+  dataset: np.ndarray 
 ) -> np.ndarray :
-    nan_indices = np.isnan(dataset)
-    dataset = dataset[~nan_indices]
-    return dataset
+  nan_indices = np.isnan(dataset)
+  dataset = dataset[~nan_indices]
+  return dataset
+
+def calc_unique_velocity(
+  dataset: xr.Dataset,
+  eastward_var_name: str,
+  northward_var_name:str,
+  unique_velocity_name: str,
+) -> xr.Dataset:
+  # {'long_name': 'Eastward velocity', 'standard_name': 'eastward_sea_water_velocity', 'units': 'm s-1', 'unit_long': 'Meters per second', 'cell_methods': 'area: mean'}
+  attrs = {
+    'long_name': 'General velocity'
+  }
+  northward_attrs = dataset[northward_var_name].attrs.copy()
+  if 'units' in northward_attrs:
+    attrs['units'] = northward_attrs['units']
+  if 'unit_long' in northward_attrs:
+    attrs['unit_long'] = northward_attrs['unit_long']
+  dataset[unique_velocity_name] =  np.sqrt(dataset[eastward_var_name]**2 + dataset[northward_var_name]**2)
+  dataset[unique_velocity_name].attrs.update(attrs)
+  return dataset

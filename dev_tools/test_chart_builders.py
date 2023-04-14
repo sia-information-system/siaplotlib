@@ -70,7 +70,6 @@ class ChartBuilderTestCase(unittest.TestCase):
     self.process_ok = True
     # del chart_builder
 
-
   def success_build_nodataset_callback(self, chart_builder: ChartBuilder):
     print(f'-> Image built.', file=sys.stderr)
     chart_builder.save(self.chart_filepath)
@@ -85,7 +84,56 @@ class ChartBuilderTestCase(unittest.TestCase):
     self.process_ok = False
 
 # Test definitions.
-# TODO: Implement the log stream system.
+class TestArrowChart(ChartBuilderTestCase):
+   def test_images(self):
+    self.process_ok = False
+    print('\n--- Starting ArrowChart static images test. ---',
+      file=sys.stderr)
+    time_start = time.time()
+    dataset_path = pathlib.Path(
+      DATA_DIR,
+      DATASET_NAME_1)
+    dataset = xr.open_dataset(dataset_path)
+
+    #min,max,jump
+    depth = 0
+    target_date = '2022-10-11'
+    northward_var_name = 'vo'
+    eastward_var_name = 'uo'
+    title = 'ArrowChart'
+
+    grouping_level = 5
+
+    dim_constraints = {
+        time_name: [target_date],
+        depth_name: depth,
+        lat_dim_name : slice(10, 30),
+        lon_dim_name: slice(-90, -80)
+      }
+    
+    self.chart_filepath = pathlib.Path(VISUALIZATIONS_DIR, f'ArrowChart')
+    chart_builder = line_chart.StaticArrowChartBuilder(
+      dataset = dataset,
+      eastward_var_name = eastward_var_name,
+      northward_var_name = northward_var_name,
+      lat_dim_name = lat_dim_name ,
+      lon_dim_name = lon_dim_name,
+      depth_dim_name = depth_name,
+      grouping_level = grouping_level,
+      title = title,
+      var_label='Velocidad (m/s)',
+      time_name = time_name,
+      dim_constraints = dim_constraints,
+      log_stream=log_stream,
+      verbose=True)
+    chart_builder.build(success_callback=self.success_build_callback, failure_callback=self.failure_build_callback)
+    chart_builder.wait() 
+    self.assertTrue(self.process_ok)
+
+    print('Finishing test.', file=sys.stderr)
+    time_end = time.time()
+    print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
+
 class TestRegionMap(ChartBuilderTestCase):
   def test_images(self):
     self.process_ok = False
@@ -684,7 +732,6 @@ class TestVerticalSlice(ChartBuilderTestCase):
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
-
 
 if __name__ == '__main__':
   unittest.main()

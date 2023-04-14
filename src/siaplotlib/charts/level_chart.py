@@ -3,10 +3,10 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
 from siaplotlib.charts import base_chart
-import xarray as xr
 import numpy as np
 import matplotlib.cm as cm
 from windrose import WindroseAxes
+
 
 class WindRose(base_chart.Chart):
   """
@@ -17,8 +17,8 @@ class WindRose(base_chart.Chart):
     speed: np.ndarray, 
     direction: np.ndarray,
     title: str, 
-    bin_range = np.ndarray,
-    nsector = int,
+    bin_range: np.ndarray,
+    nsector: int,
     color_palette: str = 'viridis',
     build_on_create: bool = True,
     log_stream = sys.stderr,

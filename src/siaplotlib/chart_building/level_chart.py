@@ -6,9 +6,10 @@ from siaplotlib.charts import raw_image
 from siaplotlib.processing import wrangling
 from siaplotlib.processing import aggregation
 from siaplotlib.processing import computations
-from siaplotlib.chart_building import base_builder
+from siaplotlib.chart_building.base_builder import ChartBuilder
 
-class StaticWindRoseBuilder(base_builder.ChartBuilder):
+
+class StaticWindRoseBuilder(ChartBuilder):
   # Public methods.
   def __init__(
     self, 
@@ -92,7 +93,7 @@ class StaticWindRoseBuilder(base_builder.ChartBuilder):
       return self,subset
 
   
-class StaticHeatMapBuilder(base_builder.ChartBuilder):
+class StaticHeatMapBuilder(ChartBuilder):
   # Public methods.
 
   def __init__(
@@ -156,7 +157,7 @@ class StaticHeatMapBuilder(base_builder.ChartBuilder):
     
     return self,subset
   
-class AnimatedHeatMapBuilder(base_builder.ChartBuilder):
+class AnimatedHeatMapBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
@@ -251,8 +252,8 @@ class AnimatedHeatMapBuilder(base_builder.ChartBuilder):
     
     return self,subset
 
-# TODO: Test the static of this, use the log method and make the Animated class
-class StaticContourMapBuilder(base_builder.ChartBuilder):
+
+class StaticContourMapBuilder(ChartBuilder):
   def __init__(self,
     dataset: xr.DataArray,
     var_name: str,
@@ -314,7 +315,7 @@ class StaticContourMapBuilder(base_builder.ChartBuilder):
     return self,subset
 
 
-class AnimatedContourMapBuilder(base_builder.ChartBuilder):
+class AnimatedContourMapBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
@@ -413,7 +414,7 @@ class AnimatedContourMapBuilder(base_builder.ChartBuilder):
     return self,subset
 
 
-class StaticVerticalSliceBuilder(base_builder.ChartBuilder):
+class StaticVerticalSliceBuilder(ChartBuilder):
   # Public methods.
 
   def __init__(
@@ -506,7 +507,7 @@ class StaticVerticalSliceBuilder(base_builder.ChartBuilder):
     return self,subset
   
 
-class AnimatedVerticalSliceBuilder(base_builder.ChartBuilder):
+class AnimatedVerticalSliceBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,

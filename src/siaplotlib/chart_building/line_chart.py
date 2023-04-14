@@ -6,6 +6,76 @@ import xarray as xr
 from siaplotlib.chart_building.base_builder import ChartBuilder
 from siaplotlib.processing import wrangling
 from siaplotlib.charts import line_chart
+from siaplotlib.processing import computations
+
+
+class StaticArrowChartBuilder(ChartBuilder):
+  # Public methods.
+  def __init__(
+    self, 
+    dataset: xr.DataArray,
+    eastward_var_name: str,
+    northward_var_name: str,
+    grouping_level,
+    title: str,
+    var_label: str,
+    time_name: str,
+    lon_dim_name: str,
+    lat_dim_name: str,
+    depth_dim_name: str,
+    dim_constraints: dict = {},
+    log_stream = sys.stderr,
+    verbose: bool = False
+  ) -> None:
+     super().__init__(
+      dataset=dataset,
+      log_stream=log_stream,
+      verbose=verbose)
+     self.eastward_var_name = eastward_var_name
+     self.northward_var_name = northward_var_name
+     self.lat_dim_name  = lat_dim_name 
+     self.lon_dim_name = lon_dim_name
+     self.depth_dim_name = depth_dim_name
+     self.title = title
+     self.time_name = time_name
+     self.grouping_level = grouping_level
+     self.dim_constraints = dim_constraints
+     self.var_label = var_label
+    
+  def sync_build(self):
+      
+      subset = wrangling.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=self.dim_constraints)
+      
+      speed = computations.calc_spd(
+        dataset=subset,
+        eastward_var_name= self.eastward_var_name,
+        northward_var_name= self.northward_var_name)
+      
+      dp_nm = self.depth_dim_name
+      depth = subset[dp_nm].values.max()
+      depth = round(float(depth),3)
+
+      tm_nm = self.time_name
+      date = subset[tm_nm].values
+      date = date.astype('datetime64[D]')
+
+      title =  self.title + f'\n Depth: {depth} \n Date: {date}'
+
+      self._chart = line_chart.ArrowChart(
+        dataset=subset,
+        speed=speed,
+        title=title,
+        data_label=self.var_label,
+        eastward_var_name=self.eastward_var_name,
+        northward_var_name=self.northward_var_name,
+        lat_dim_name=self.lat_dim_name,
+        lon_dim_name=self.lon_dim_name,
+        grouping_level=self.grouping_level,
+        verbose=self.verbose)
+      
+      return self,subset
 
 
 class StaticRegionMapBuilder(ChartBuilder):
