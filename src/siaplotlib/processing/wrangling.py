@@ -178,10 +178,18 @@ def group_into_series(
       series_list.append(series)
   return series_list
 
-
 def drop_nan(
     dataset: np.ndarray 
 ) -> np.ndarray :
     nan_indices = np.isnan(dataset)
     dataset = dataset[~nan_indices]
+    return dataset
+
+def calc_unique_velocity(
+    dataset: xr.DataArray,
+    eastward_var_name: str,
+    northward_var_name:str,
+    unique_velocity_name: str,
+    ) -> xr.DataArray :
+    dataset[unique_velocity_name] =  np.sqrt(dataset[eastward_var_name]**2 + dataset[northward_var_name]**2)
     return dataset
