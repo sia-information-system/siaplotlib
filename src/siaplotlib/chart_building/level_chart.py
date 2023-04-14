@@ -23,7 +23,7 @@ class StaticWindRoseBuilder(base_builder.ChartBuilder):
     lon_dim_name: str,
     lat_dim_name: str,
     depth_dim_name: str,
-    log_stream: sys.stderr,
+    log_stream = sys.stderr,
     verbose: bool = False,
     dim_constraints: dict = {},
     color_palette: str = None
