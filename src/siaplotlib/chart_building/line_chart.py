@@ -19,7 +19,7 @@ class StaticArrowChartBuilder(ChartBuilder):
     grouping_level,
     title: str,
     var_label: str,
-    time_name: str,
+    time_dim_name: str,
     lon_dim_name: str,
     lat_dim_name: str,
     depth_dim_name: str,
@@ -37,7 +37,7 @@ class StaticArrowChartBuilder(ChartBuilder):
      self.lon_dim_name = lon_dim_name
      self.depth_dim_name = depth_dim_name
      self.title = title
-     self.time_name = time_name
+     self.time_dim_name = time_dim_name
      self.grouping_level = grouping_level
      self.dim_constraints = dim_constraints
      self.var_label = var_label
@@ -57,7 +57,7 @@ class StaticArrowChartBuilder(ChartBuilder):
       depth = subset[dp_nm].values.max()
       depth = round(float(depth),3)
 
-      tm_nm = self.time_name
+      tm_nm = self.time_dim_name
       date = subset[tm_nm].values
       date = date.astype('datetime64[D]')
 

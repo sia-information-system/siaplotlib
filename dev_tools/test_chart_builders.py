@@ -54,7 +54,8 @@ palette_colors = {
 lon_dim_name = 'longitude'
 lat_dim_name = 'latitude'
 depth_name = 'depth'
-time_name = 'time'
+time_dim_name = 'time'
+
 
 class ChartBuilderTestCase(unittest.TestCase):
   def __init__(self, methodName: str = "runTest") -> None:
@@ -105,7 +106,8 @@ class TestArrowChart(ChartBuilderTestCase):
     grouping_level = 5
 
     dim_constraints = {
-        time_name: [target_date],
+        time_dim_name
+: [target_date],
         depth_name: depth,
         lat_dim_name : slice(10, 30),
         lon_dim_name: slice(-90, -80)
@@ -122,7 +124,7 @@ class TestArrowChart(ChartBuilderTestCase):
       grouping_level = grouping_level,
       title = title,
       var_label='Velocidad (m/s)',
-      time_name = time_name,
+      time_dim_name = time_dim_name,
       dim_constraints = dim_constraints,
       log_stream=log_stream,
       verbose=True)
@@ -190,7 +192,8 @@ class TestWindRose(ChartBuilderTestCase):
     title = 'Windrose'
 
     dim_constraints = {
-        time_name: [target_date],
+        time_dim_name
+: [target_date],
         depth_name: depth,
         lat_dim_name : slice(15, 20),
         lon_dim_name: slice(-85, 82)
@@ -237,12 +240,14 @@ class TestHeatMap(ChartBuilderTestCase):
 
     for variable in variables:
       dim_constraints = {
-        time_name: [target_date],
+        time_dim_name
+: [target_date],
         depth_name: [0.49402499198913574]
       }
       if variable == 'zos':
         dim_constraints = {
-          time_name: [target_date]
+          time_dim_name
+: [target_date]
         }
       print(f'-> Heatmap static image for "{variable}" variable.',
         file=sys.stderr)
@@ -292,7 +297,8 @@ class TestHeatMap(ChartBuilderTestCase):
         title=plot_titles[variable],
         var_label=plot_measure_label[variable],
         dim_constraints=dim_constraints,
-        time_dim_name=time_name,
+        time_dim_name=time_dim_name
+,
         lat_dim_name=lat_dim_name,
         lon_dim_name=lon_dim_name,
         duration=5,
@@ -324,12 +330,14 @@ class TestContourMap(ChartBuilderTestCase):
     target_date = '2022-10-11'
     for variable in variables:
       dim_constraints = {
-        time_name: [target_date],
+        time_dim_name
+: [target_date],
         depth_name: [0.49402499198913574]
       }
       if variable == 'zos':
         dim_constraints = {
-          time_name: [target_date]
+          time_dim_name
+: [target_date]
         }
       print(f'-> Contour map static image for "{variable}" variable.',
         file=sys.stderr)
@@ -379,7 +387,8 @@ class TestContourMap(ChartBuilderTestCase):
         title=plot_titles[variable],
         var_label=plot_measure_label[variable],
         dim_constraints=dim_constraints,
-        time_dim_name=time_name,
+        time_dim_name=time_dim_name
+,
         lat_dim_name=lat_dim_name,
         lon_dim_name=lon_dim_name,
         duration=5,
@@ -413,14 +422,16 @@ class TestSinglePointTimeSeries(ChartBuilderTestCase):
     for variable in variables:
       grouping_dim_name=depth_name
       dim_constraints = {
-        time_name: date_range,
+        time_dim_name
+: date_range,
         depth_name: [0, 100, 250, 500, 1000],
         lat_dim_name: 21,
         lon_dim_name: -86
       }
       if variable == 'zos':
         dim_constraints = {
-          time_name: date_range,
+          time_dim_name
+: date_range,
           lat_dim_name: 21,
           lon_dim_name: -86
         }
@@ -436,7 +447,8 @@ class TestSinglePointTimeSeries(ChartBuilderTestCase):
         lat_dim_name=lat_dim_name,
         lon_dim_name=lon_dim_name,
         grouping_dim_name=grouping_dim_name,
-        time_dim_name=time_name,
+        time_dim_name=time_dim_name
+,
         var_label=plot_measure_label[variable],
         time_dim_label='Dates',
         verbose=True)
@@ -465,14 +477,16 @@ class TestSinglePointTimeSeries(ChartBuilderTestCase):
     for variable in variables:
       grouping_dim_name=depth_name
       dim_constraints = {
-        time_name: date_range,
+        time_dim_name
+: date_range,
         depth_name: [0.49402499198913574],
         lat_dim_name: 21,
         lon_dim_name: -86
       }
       if variable == 'zos':
         dim_constraints = {
-          time_name: date_range,
+          time_dim_name
+: date_range,
           lat_dim_name: 21,
           lon_dim_name: -86
         }
@@ -488,7 +502,8 @@ class TestSinglePointTimeSeries(ChartBuilderTestCase):
         lat_dim_name=lat_dim_name,
         lon_dim_name=lon_dim_name,
         grouping_dim_name=grouping_dim_name,
-        time_dim_name=time_name,
+        time_dim_name=time_dim_name
+,
         var_label=plot_measure_label[variable],
         time_dim_label='Dates',
         verbose=True)
@@ -517,9 +532,11 @@ class TestSinglePointVerticalProfile(ChartBuilderTestCase):
     date_range = ['2020-03-01', '2020-03-09', '2020-09-01', '2020-12-01']
     # date_range = ['2020-03-01', '2020-06-01', '2020-09-01', '2020-12-01']
     for variable in variables:
-      grouping_dim_name=time_name
+      grouping_dim_name=time_dim_name
+
       dim_constraints = {
-        time_name: date_range,
+        time_dim_name
+: date_range,
         lat_dim_name: 21,
         lon_dim_name: -86
       }
@@ -565,7 +582,8 @@ class TestVerticalSlice(ChartBuilderTestCase):
     date = '2020-01-01'
     for variable in variables:
       dim_constraints = {
-        time_name: date,
+        time_dim_name
+: date,
         lat_dim_name: slice(15, 27),
         lon_dim_name: -85
       }
@@ -610,7 +628,8 @@ class TestVerticalSlice(ChartBuilderTestCase):
     date = '2020-01-01'
     for variable in variables:
       dim_constraints = {
-        time_name: date,
+        time_dim_name
+: date,
         lat_dim_name: 20,
         lon_dim_name: slice(-88, -76)
       }
@@ -666,7 +685,8 @@ class TestVerticalSlice(ChartBuilderTestCase):
         var_name=variable,
         x_dim_name=lat_dim_name,
         y_dim_name=depth_name,
-        time_dim_name=time_name,
+        time_dim_name=time_dim_name
+,
         lat_dim_name=lat_dim_name,
         lon_dim_name=lon_dim_name,
         title=f'{plot_titles[variable]}',
@@ -712,7 +732,8 @@ class TestVerticalSlice(ChartBuilderTestCase):
         var_name=variable,
         x_dim_name=lon_dim_name,
         y_dim_name=depth_name,
-        time_dim_name=time_name,
+        time_dim_name=time_dim_name
+,
         lat_dim_name=lat_dim_name,
         lon_dim_name=lon_dim_name,
         title=f'{plot_titles[variable]}',
