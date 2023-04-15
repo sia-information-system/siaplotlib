@@ -9,11 +9,12 @@ import xarray as xr
 from siaplotlib.chart_building import level_chart, line_chart
 from siaplotlib.chart_building.base_builder import ChartBuilder
 from siaplotlib.utils.log import LogStream
+from siaplotlib.charts.raw_image import ChartImage
 # For testing
 from lib_utils.general_utils import VISUALIZATIONS_DIR, DATA_DIR
 import lib_utils.general_utils as general_utils
 
-log_stream = LogStream(callback= lambda s: print(s, end=''))
+log_stream = LogStream(callback= lambda s: print(s, end='', file=sys.stderr))
 # Setup
 
 DATASET_NAME_1 = 'global-analysis-forecast-phy-001-024-GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS-date-2022-11-13-time-10h-31m-10s-857022ms.nc'
@@ -63,7 +64,7 @@ class ChartBuilderTestCase(unittest.TestCase):
     self.chart_filepath: pathlib.Path | str = '__filepath__'
     self.process_ok = False
 
-  def success_build_callback(self, chart_builder: ChartBuilder, subset):
+  def success_build_callback(self, chart_builder: ChartBuilder, subset: xr.Dataset):
     print(f'-> Image built.', file=sys.stderr)
     chart_builder.save(self.chart_filepath)
     print(f'-> Image saved', file=sys.stderr)
@@ -753,6 +754,24 @@ class TestVerticalSlice(ChartBuilderTestCase):
     print('Finishing test.', file=sys.stderr)
     time_end = time.time()
     print(f'----> Time elapsed: {time_end - time_start}s.', file=sys.stderr)
+
+
+class TestRestoreChartBuilders(ChartBuilderTestCase):
+  def test_restore_chart_builder(self):
+    print('\n--- Starting test for builder restoring. ---',
+      file=sys.stderr)
+    img_path = pathlib.Path(DATA_DIR, 'time-series.png')
+    chart_builder = ChartBuilder(
+      dataset=None,
+      log_stream=sys.stderr,
+      verbose=True)
+    chart_image = ChartImage(
+      img_source=img_path,
+      verbose=chart_builder.verbose,
+      log_stream=chart_builder.log_stream)
+    chart_builder._chart = chart_image
+    chart_builder.save(pathlib.Path(VISUALIZATIONS_DIR, 'restored_image.png'))
+
 
 if __name__ == '__main__':
   unittest.main()
