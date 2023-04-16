@@ -25,9 +25,16 @@ class RawImage(chart_interfaces.ChartInterface, LoggingFeatures):
       self.log('Setting image buffer')
     elif type(img_source) is str or type(img_source) is Path or issubclass(type(img_source), Path):
       # Read from disk and convert to a buffered stream.
+      filepath = img_source
       self._img_buff = io.BytesIO()
-      img = Image.open(img_source)
-      img.save(self._img_buff, format='PNG')
+      fname_splited = str(filepath).split('.')
+      file_format = fname_splited[-1].lower()
+      if len(fname_splited) == 1:
+        self.log(f'No extension found when trying to load image: {filepath}')
+        file_format = 'png'
+        self.log(f'Using defaul format: {file_format}')
+      img = Image.open(filepath)
+      img.save(self._img_buff, format=file_format.upper())
       img.close()
     else:
       raise RuntimeError(f'img_source is {type(img_source)} and must be: BytesIO | Path | str')
@@ -46,18 +53,10 @@ class RawImage(chart_interfaces.ChartInterface, LoggingFeatures):
     self,
     filepath: str | Path
   ) -> None:
+    self.log('Saving image buffer to a file. Be aware that no extension will be assumed.')
     with open(filepath, "wb") as f:
-      fname_splited = str(filepath).split('.')
-      if fname_splited[-1].lower() not in { 'png', 'jpg', 'jpeg', 'gif' }:
-        filepath = str(filepath) + '.png'
       f.write(self.get_buffer().getbuffer())
-      # fname_splited = str(filepath).split('.')
-      # if fname_splited[-1].lower() not in { 'png', 'jpg', 'jpeg', 'gif' }:
-      #   filepath = str(filepath) + '.png'
-      # img = Image.open(self.get_buffer())
-      # img.save(filepath, format='PNG')
-      # img.close()
-      self.log(f'Image saved in: {filepath}')
+    self.log(f'Image saved in: {filepath}')
 
 
 class ChartImage(RawImage):
