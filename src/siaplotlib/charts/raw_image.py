@@ -47,13 +47,16 @@ class RawImage(chart_interfaces.ChartInterface, LoggingFeatures):
     filepath: str | Path
   ) -> None:
     with open(filepath, "wb") as f:
-      # f.write(self.get_buffer().getbuffer())
       fname_splited = str(filepath).split('.')
       if fname_splited[-1].lower() not in { 'png', 'jpg', 'jpeg', 'gif' }:
         filepath = str(filepath) + '.png'
-      img = Image.open(self.get_buffer())
-      img.save(filepath, format='PNG')
-      img.close()
+      f.write(self.get_buffer().getbuffer())
+      # fname_splited = str(filepath).split('.')
+      # if fname_splited[-1].lower() not in { 'png', 'jpg', 'jpeg', 'gif' }:
+      #   filepath = str(filepath) + '.png'
+      # img = Image.open(self.get_buffer())
+      # img.save(filepath, format='PNG')
+      # img.close()
       self.log(f'Image saved in: {filepath}')
 
 
