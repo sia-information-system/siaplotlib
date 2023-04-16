@@ -758,7 +758,7 @@ class TestVerticalSlice(ChartBuilderTestCase):
 
 class TestRestoreChartBuilders(ChartBuilderTestCase):
   def test_restore_chart_builder(self):
-    print('\n--- Starting test for builder restoring. ---',
+    print('\n--- Starting test for builder restoring (png). ---',
       file=sys.stderr)
     img_path = pathlib.Path(DATA_DIR, 'time-series.png')
     chart_builder = ChartBuilder(
@@ -771,6 +771,22 @@ class TestRestoreChartBuilders(ChartBuilderTestCase):
       log_stream=chart_builder.log_stream)
     chart_builder._chart = chart_image
     chart_builder.save(pathlib.Path(VISUALIZATIONS_DIR, 'restored_image.png'))
+  
+
+  def test_restore_chart_builder_gif(self):
+    print('\n--- Starting test for builder restoring (gif). ---',
+      file=sys.stderr)
+    img_path = pathlib.Path(DATA_DIR, 'heatmap.gif')
+    chart_builder = ChartBuilder(
+      dataset=None,
+      log_stream=sys.stderr,
+      verbose=True)
+    chart_image = ChartImage(
+      img_source=img_path,
+      verbose=chart_builder.verbose,
+      log_stream=chart_builder.log_stream)
+    chart_builder._chart = chart_image
+    chart_builder.save(pathlib.Path(VISUALIZATIONS_DIR, 'restored_image.gif'))
 
 
 if __name__ == '__main__':
