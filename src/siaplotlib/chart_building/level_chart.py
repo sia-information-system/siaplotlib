@@ -48,49 +48,53 @@ class StaticWindRoseBuilder(ChartBuilder):
     
   def sync_build(self):
       
+    subset = None
+    if self.dim_constraints:
       subset = wrangling.slice_dice(
         dataset=self.dataset,
         dim_constraints=self.dim_constraints)
-      
-      lat_min = round(subset[self.lat_dim_name].values.min(),3)
-      lat_max = round(subset[self.lat_dim_name].values.max(),3)
-
-      lon_min = round(subset[self.lon_dim_name].values.min(),3)
-      lon_max = round(subset[self.lon_dim_name].values.max(),3)
-
-      depth = subset[self.depth_dim_name].values.max()
-      depth = round(float(depth),3)
-
-      title =  self.title + f'\n Depth: {depth} \n Lat: ({lat_min},{lat_max}), Lon: ({lon_min},{lon_max})'
-
-      speed, direction = computations.calc_uniqueDir(
-        dataset = subset,
-        eastward_var_name = self.eastward_var_name,
-        northward_var_name = self.northward_var_name)
-      
+    else:
+      subset = self.dataset
     
-      directionUp = computations.corr_cord(dataset = direction) 
-      directionUp = wrangling.drop_nan(dataset = directionUp)
-      speedUp = wrangling.drop_nan(dataset = speed)
+    lat_min = round(subset[self.lat_dim_name].values.min(),3)
+    lat_max = round(subset[self.lat_dim_name].values.max(),3)
 
+    lon_min = round(subset[self.lon_dim_name].values.min(),3)
+    lon_max = round(subset[self.lon_dim_name].values.max(),3)
 
-      bin_range = computations.calc_bins(
-        speed = speedUp,
-        bin_min = self.bin_min,
-        bin_max = self.bin_max,
-        bin_jmp = self.bin_jmp,
-      )
+    depth = subset[self.depth_dim_name].values.max()
+    depth = round(float(depth),3)
+
+    title =  self.title + f'\n Depth: {depth} \n Lat: ({lat_min},{lat_max}), Lon: ({lon_min},{lon_max})'
+
+    speed, direction = computations.calc_uniqueDir(
+      dataset = subset,
+      eastward_var_name = self.eastward_var_name,
+      northward_var_name = self.northward_var_name)
     
-      self._chart = level_chart.WindRose(
-        speed=speedUp,
-        direction=directionUp,
-        title=title,
-        verbose=self.verbose,
-        bin_range = bin_range,
-        nsector = self.nsector,
-        color_palette = self.color_palette)
-      
-      return self,subset
+  
+    directionUp = computations.corr_cord(dataset = direction) 
+    directionUp = wrangling.drop_nan(dataset = directionUp)
+    speedUp = wrangling.drop_nan(dataset = speed)
+
+
+    bin_range = computations.calc_bins(
+      speed = speedUp,
+      bin_min = self.bin_min,
+      bin_max = self.bin_max,
+      bin_jmp = self.bin_jmp,
+    )
+  
+    self._chart = level_chart.WindRose(
+      speed=speedUp,
+      direction=directionUp,
+      title=title,
+      verbose=self.verbose,
+      bin_range = bin_range,
+      nsector = self.nsector,
+      color_palette = self.color_palette)
+    
+    return self,subset
 
   
 class StaticHeatMapBuilder(ChartBuilder):
@@ -99,11 +103,11 @@ class StaticHeatMapBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
-    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     title: str,
     dim_constraints: dict = {},
+    var_name: str = None,
     var_label: str = None,
     color_palette: str = None,
     log_stream = sys.stderr,
@@ -123,10 +127,16 @@ class StaticHeatMapBuilder(ChartBuilder):
 
 
   def sync_build(self):
-    subset = wrangling.slice_dice(
-      dataset=self.dataset,
-      dim_constraints=self.dim_constraints,
-      var=self.var_name)
+    subset = None
+    if self.dim_constraints:
+      subset = wrangling.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=self.dim_constraints,
+        var=self.var_name)
+    elif self.var_name:
+      subset = self.dataset[self.var_name]
+    else:
+      subset = self.dataset
     
     vmin = aggregation.min(
       dataset=subset,
@@ -161,12 +171,12 @@ class AnimatedHeatMapBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
-    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     time_dim_name: str,
     title: str,
     dim_constraints: dict = {},
+    var_name: str = None,
     var_label: str = None,
     color_palette: str = None,
     duration: int = 0.5,
@@ -188,10 +198,16 @@ class AnimatedHeatMapBuilder(ChartBuilder):
 
 
   def sync_build(self):
-    subset = wrangling.slice_dice(
-      dataset=self.dataset,
-      dim_constraints=self.dim_constraints,
-      var=self.var_name)
+    subset = None
+    if self.dim_constraints:
+      subset = wrangling.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=self.dim_constraints,
+        var=self.var_name)
+    elif self.var_name:
+      subset = self.dataset[self.var_name]
+    else:
+      subset = self.dataset
     
     vmin = aggregation.min(
       dataset=subset,
@@ -256,12 +272,12 @@ class AnimatedHeatMapBuilder(ChartBuilder):
 class StaticContourMapBuilder(ChartBuilder):
   def __init__(self,
     dataset: xr.DataArray,
-    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     num_levels: int,
     title: str,
     dim_constraints: dict = {},
+    var_name: str = None,
     var_label: str = None,
     color_palette: str = None,
     log_stream = sys.stderr,
@@ -279,10 +295,16 @@ class StaticContourMapBuilder(ChartBuilder):
 
   
   def sync_build(self):
-    subset = wrangling.slice_dice(
-      dataset=self.dataset,
-      dim_constraints=self.dim_constraints,
-      var=self.var_name)
+    subset = None
+    if self.dim_constraints:
+      subset = wrangling.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=self.dim_constraints,
+        var=self.var_name)
+    elif self.var_name:
+      subset = self.dataset[self.var_name]
+    else:
+      subset = self.dataset
     
     vmin = aggregation.min(
       dataset=subset,
@@ -319,13 +341,13 @@ class AnimatedContourMapBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
-    var_name: str,
     lat_dim_name: str,
     lon_dim_name: str,
     time_dim_name: str,
     num_levels: int,
     title: str,
     dim_constraints: dict = {},
+    var_name: str = None,
     var_label: str = None,
     color_palette: str = None,
     duration: int = 0.5,
@@ -348,10 +370,16 @@ class AnimatedContourMapBuilder(ChartBuilder):
   
   
   def sync_build(self):
-    subset = wrangling.slice_dice(
-      dataset=self.dataset,
-      dim_constraints=self.dim_constraints,
-      var=self.var_name)
+    subset = None
+    if self.dim_constraints:
+      subset = wrangling.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=self.dim_constraints,
+        var=self.var_name)
+    elif self.var_name:
+      subset = self.dataset[self.var_name]
+    else:
+      subset = self.dataset
     
     vmin = aggregation.min(
       dataset=subset,
@@ -420,7 +448,6 @@ class StaticVerticalSliceBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
-    var_name: str,
     x_dim_name: str,
     y_dim_name: str,
     lat_dim_name: str,
@@ -430,6 +457,7 @@ class StaticVerticalSliceBuilder(ChartBuilder):
     y_label: str,
     x_label: str,
     dim_constraints: dict = {},
+    var_name: str = None,
     color_palette: str = None,
     log_stream = sys.stderr,
     verbose: bool = False
@@ -452,10 +480,16 @@ class StaticVerticalSliceBuilder(ChartBuilder):
 
 
   def sync_build(self):
-    subset = wrangling.slice_dice(
-      dataset=self.dataset,
-      dim_constraints=self.dim_constraints,
-      var=self.var_name)
+    subset = None
+    if self.dim_constraints:
+      subset = wrangling.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=self.dim_constraints,
+        var=self.var_name)
+    elif self.var_name:
+      subset = self.dataset[self.var_name]
+    else:
+      subset = self.dataset
     
     vmin = aggregation.min(
       dataset=subset,
@@ -511,7 +545,6 @@ class AnimatedVerticalSliceBuilder(ChartBuilder):
   def __init__(
     self,
     dataset: xr.DataArray,
-    var_name: str,
     x_dim_name: str,
     y_dim_name: str,
     time_dim_name: str,
@@ -522,6 +555,7 @@ class AnimatedVerticalSliceBuilder(ChartBuilder):
     y_label: str,
     x_label: str,
     dim_constraints: dict = {},
+    var_name: str = None,
     color_palette: str = None,
     duration: int = 0.5,
     duration_unit: str = 'SECONDS_PER_FRAME',
@@ -546,10 +580,16 @@ class AnimatedVerticalSliceBuilder(ChartBuilder):
 
 
   def sync_build(self):
-    subset = wrangling.slice_dice(
-      dataset=self.dataset,
-      dim_constraints=self.dim_constraints,
-      var=self.var_name)
+    subset = None
+    if self.dim_constraints:
+      subset = wrangling.slice_dice(
+        dataset=self.dataset,
+        dim_constraints=self.dim_constraints,
+        var=self.var_name)
+    elif self.var_name:
+      subset = self.dataset[self.var_name]
+    else:
+      subset = self.dataset
     
     vmin = aggregation.min(
       dataset=subset,
