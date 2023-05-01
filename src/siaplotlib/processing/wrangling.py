@@ -193,7 +193,7 @@ def calc_unique_velocity(
 ) -> xr.Dataset:
   # {'long_name': 'Eastward velocity', 'standard_name': 'eastward_sea_water_velocity', 'units': 'm s-1', 'unit_long': 'Meters per second', 'cell_methods': 'area: mean'}
   attrs = {
-    'long_name': 'General velocity'
+    'long_name': 'Current Velocity'
   }
   northward_attrs = dataset[northward_var_name].attrs.copy()
   if 'units' in northward_attrs:

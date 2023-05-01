@@ -44,38 +44,42 @@ class StaticArrowChartBuilder(ChartBuilder):
     
   def sync_build(self):
       
+    subset = None
+    if self.dim_constraints:
       subset = wrangling.slice_dice(
         dataset=self.dataset,
         dim_constraints=self.dim_constraints)
-      
-      speed = computations.calc_spd(
-        dataset=subset,
-        eastward_var_name= self.eastward_var_name,
-        northward_var_name= self.northward_var_name)
-      
-      dp_nm = self.depth_dim_name
-      depth = subset[dp_nm].values.max()
-      depth = round(float(depth),3)
+    else:
+      subset = self.dataset
+    
+    speed = computations.calc_spd(
+      dataset=subset,
+      eastward_var_name= self.eastward_var_name,
+      northward_var_name= self.northward_var_name)
+    
+    dp_nm = self.depth_dim_name
+    depth = subset[dp_nm].values.max()
+    depth = round(float(depth),3)
 
-      tm_nm = self.time_dim_name
-      date = subset[tm_nm].values
-      date = date.astype('datetime64[D]')
+    tm_nm = self.time_dim_name
+    date = subset[tm_nm].values
+    date = date.astype('datetime64[D]')
 
-      title =  self.title + f'\n Depth: {depth} \n Date: {date}'
+    title =  self.title + f'\n Depth: {depth} \n Date: {date}'
 
-      self._chart = line_chart.ArrowChart(
-        dataset=subset,
-        speed=speed,
-        title=title,
-        data_label=self.var_label,
-        eastward_var_name=self.eastward_var_name,
-        northward_var_name=self.northward_var_name,
-        lat_dim_name=self.lat_dim_name,
-        lon_dim_name=self.lon_dim_name,
-        grouping_level=self.grouping_level,
-        verbose=self.verbose)
-      
-      return self,subset
+    self._chart = line_chart.ArrowChart(
+      dataset=subset,
+      speed=speed,
+      title=title,
+      data_label=self.var_label,
+      eastward_var_name=self.eastward_var_name,
+      northward_var_name=self.northward_var_name,
+      lat_dim_name=self.lat_dim_name,
+      lon_dim_name=self.lon_dim_name,
+      grouping_level=self.grouping_level,
+      verbose=self.verbose)
+    
+    return self,subset
 
 
 class StaticRegionMapBuilder(ChartBuilder):
