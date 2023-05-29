@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "siaplotlib"
 version = "0.1.0"
-description = "Provide an easy to use interface for plotting oceanic data."
+description = "Provide an easy to use interface for plotting oceanographic data."
 readme = "README.md"
 authors = [{ name = "SIA", email = "180300337@ucaribe.edu.mx" }]
 keywords = ["cartopy", "gis", "cartography", "oceanographic", "oceanic", "visualization"]
@@ -18,10 +18,10 @@ dependencies = [
   "netcdf4 >= 1.6.1",
   "matplotlib >= 3.6.2",
   "pillow >= 9.3.0",
-  "cartopy >= 0.21.1",
+  "cartopy == 0.21.1",
   "windrose >= 1.8.1"
 ]
 requires-python = ">=3.10"
 
 [project.urls]
-Homepage = "https://github.com/OMDEP/omdepplotlib"
+Homepage = "https://github.com/sia-information-system/siaplotlib"
