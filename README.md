@@ -1,6 +1,6 @@
 # SIAPLOTLIB
 
-**Version: 0.1.0**
+**Version: 0.2.0**
 
 Python library as part of the SIA project. Its aim is to provide an
 easy to use interface for plotting oceanic data.
