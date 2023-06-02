@@ -5,6 +5,8 @@
 Python library as part of the SIA project. Its aim is to provide an
 easy to use interface for plotting oceanic data.
 
+Page of the project: https://sia-information-system.github.io/sia-website
+
 ## Table of content
 
 - [Install](#install)
