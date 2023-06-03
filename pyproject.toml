@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "siaplotlib"
-version = "0.2.0"
+version = "0.2.1"
 description = "Provide an easy to use interface for plotting oceanographic data."
 readme = "README.md"
 authors = [{ name = "Alexis Montejo et al." }]
@@ -34,7 +34,7 @@ Homepage = "https://sia-information-system.github.io/sia-website"
 "Source Code" = "https://github.com/sia-information-system/siaplotlib"
 
 [tool.bumpver]
-current_version = "0.2.0"
+current_version = "0.2.1"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "Bump version {old_version} -> {new_version}"
 commit = true
