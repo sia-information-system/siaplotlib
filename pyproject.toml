@@ -9,8 +9,12 @@ name = "siaplotlib"
 version = "0.2.0"
 description = "Provide an easy to use interface for plotting oceanographic data."
 readme = "README.md"
-authors = [{ name = "SIA", email = "180300337@ucaribe.edu.mx" }]
-keywords = ["cartopy", "gis", "cartography", "oceanographic", "oceanic", "visualization"]
+authors = [{ name = "Alexis Montejo et al." }]
+maintainers = [
+  {name = "SIA Project"},
+]
+license = { file = "LICENSE" }
+keywords = ["gis", "cartography", "oceanographic", "oceanic", "data", "visualization"]
 dependencies = [
   "numpy >= 1.23.4",
   "pandas >= 1.5.1",
@@ -23,10 +27,11 @@ dependencies = [
 requires-python = ">=3.10"
 
 [project.optional-dependencies]
-dev = ["bumpver", "netcdf4 == 1.6.2"]
+dev = ["bumpver", "netcdf4 == 1.6.2", "build", "twine"]
 
 [project.urls]
-Homepage = "https://github.com/sia-information-system/siaplotlib"
+Homepage = "https://sia-information-system.github.io/sia-website"
+"Source Code" = "https://github.com/sia-information-system/siaplotlib"
 
 [tool.bumpver]
 current_version = "0.2.0"
